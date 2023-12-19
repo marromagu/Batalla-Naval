@@ -10,4 +10,14 @@
         <maven.compiler.target>18</maven.compiler.target>
         <exec.mainClass>com.mycompany.therealhundirlaflota.TheRealHundirLaFlota</exec.mainClass>
     </properties>
+    <!-- Agrega la sección de dependencies aquí -->
+    <dependencies>
+        <!--MySQL Connector/J -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.26</version> <!-- Utiliza la versión más reciente disponible -->
+        </dependency>
+        <!-- Agrega otras dependencias según sea necesario -->
+    </dependencies>
 </project>
