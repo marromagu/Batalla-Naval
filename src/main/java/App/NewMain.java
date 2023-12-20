@@ -4,8 +4,11 @@
  */
 package App;
 
+import Datos.ConexionConBDD;
 import Servidor.ConexionServidor;
 import java.net.Socket;
+import Logica.Juego;
+
 /**
  *
  * @author DAM_M
@@ -16,9 +19,14 @@ public class NewMain {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        Socket miSocket = null;
+        Juego miJuego = new Juego(10);
+        miJuego.jugar();
+        /*ConexionConBDD miConexionConBDD = new ConexionConBDD();
+        System.out.println(miConexionConBDD.getConexion());*/
+        /*Socket miSocket = null;
         ConexionServidor miServidor = new ConexionServidor(miSocket);
-        miServidor.EstablecerConexcion();
+        miServidor.EstablecerConexcion();*/
+
     }
-    
+
 }

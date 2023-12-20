@@ -4,8 +4,7 @@
  */
 package Datos;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
+import java.sql.*;
 
 /**
  *
@@ -13,15 +12,18 @@ import java.sql.DriverManager;
  */
 public class ConexionConBDD {
 
-    private final String NameDataBase = "";
+    private final String NameDataBase = "BDD_HundirLaFlota";
     private final String User = "root";
     private final String Password = "root";
+    private final String URL = "jdbc:mysql://locatehost:3306/" + NameDataBase;
 
-    public void Conexion() {
-        try ( Connection conexion = DriverManager.getConnection(NameDataBase, User, Password)) {
-            // TODO
+    public Connection getConexion() {
+        try ( Connection conexion = DriverManager.getConnection(URL, User, Password)) {
+            return conexion;
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return null;
     }
 }
