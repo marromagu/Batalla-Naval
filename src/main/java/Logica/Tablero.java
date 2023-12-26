@@ -10,7 +10,6 @@ import java.util.Arrays;
  *
  * @author DAM_M
  */
-// Clase Tablero que representa el tablero de juego
 class Tablero {
 
     private int filas;
@@ -21,7 +20,7 @@ class Tablero {
         this.filas = filas;
         this.columnas = columnas;
         this.matrizTablero = new char[filas][columnas];
-        // Inicializa el tablero con espacios en blanco
+        // Inicializa el tablero con '-'.
         for (int i = 0; i < filas; i++) {
             Arrays.fill(matrizTablero[i], '-');
         }

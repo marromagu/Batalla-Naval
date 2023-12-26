@@ -8,10 +8,9 @@ package Logica;
  *
  * @author DAM_M
  */
-
-// Clase Barco que representa un barco en el juego
 class Barco {
- private int fila;
+
+    private int fila;
     private int columna;
     private int tamaño;
     private boolean orientacion; // true para horizontal, false para vertical
@@ -54,5 +53,5 @@ class Barco {
     public void setOrientacion(boolean orientacion) {
         this.orientacion = orientacion;
     }
-    
+
 }

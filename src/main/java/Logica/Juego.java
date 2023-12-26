@@ -4,19 +4,16 @@
  */
 package Logica;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 /**
  *
  * @author DAM_M
  */
-// Clase Juego que maneja la lógica del juego
 public class Juego {
 
-    private Jugador miJugador1;
-    private Jugador miJugador2;
+    private final Jugador miJugador1;
+    private final Jugador miJugador2;
 
     public Juego() {
         miJugador1 = new Jugador();
@@ -31,45 +28,30 @@ public class Juego {
             menu();
             op = sc.nextInt();
             switch (op) {
-                case 1:
+                case 1 ->
                     ponerBarcos(j);
-                    break;
-                case 2:
+                case 2 ->
                     verTablero(j);
-                    break;
-                case 3:
+                case 3 -> {
                     System.out.println("- Coordenadas del disparo.");
                     System.out.println("Columna: ");
                     int c = sc.nextInt();
                     System.out.println("Fila:");
                     int f = sc.nextInt();
                     dispararBarco(j, c, f);
-                    break;
-                case 4:
+                }
+                case 4 -> {
                     System.out.println("Jugador 1 | Jugador 2");
                     int o = sc.nextInt();
                     j = cambiarJugador(o);
-                    break;
-                default:
+                }
+                default ->
                     throw new AssertionError();
             }
         } while (op != 0);
     }
 
-    public Jugador cambiarJugador(int o) {
-        switch (o) {
-            case 1:
-                return miJugador1;
-
-            case 2:
-                return miJugador2;
-
-            default:
-                throw new AssertionError();
-        }
-    }
-
-    public void menu() {
+    private void menu() {
         System.out.println("\n--------------------------");
         System.out.println("| 1.- Poner Barcos.       |");
         System.out.println("| 2.- Ver Tablero.        |");
@@ -79,7 +61,22 @@ public class Juego {
         System.out.println("--------------------------");
     }
 
-    public void ponerBarcos(Jugador j) {
+    private Jugador cambiarJugador(int o) {
+        switch (o) {
+            case 1 -> {
+                return miJugador1;
+            }
+
+            case 2 -> {
+                return miJugador2;
+            }
+
+            default ->
+                throw new AssertionError();
+        }
+    }
+
+    private void ponerBarcos(Jugador j) {
         System.out.println("Jugardor: " + j);
         int c = 0;
         while (c < 2) {
@@ -88,10 +85,6 @@ public class Juego {
                 c++;
             }
         }
-    }
-
-    public void verTablero(Jugador j) {
-        j.verTablero();
     }
 
     private void dispararBarco(Jugador j, int c, int f) {
@@ -103,4 +96,7 @@ public class Juego {
         }
     }
 
+    private void verTablero(Jugador j) {
+        j.verTablero();
+    }
 }
