@@ -13,40 +13,41 @@ import java.util.Arrays;
 // Clase Tablero que representa el tablero de juego
 class Tablero {
 
-    private char[][] casillas;
-    private int tamano;
+    private int filas;
+    private int columnas;
+    private char[][] matrizTablero;
 
-    public Tablero(int tamano) {
-        this.tamano = tamano;
-        this.casillas = new char[tamano][tamano];
-        for (char[] fila : casillas) {
-            Arrays.fill(fila, ' '); // Inicializar todas las casillas con espacios en blanco
+    public Tablero(int filas, int columnas) {
+        this.filas = filas;
+        this.columnas = columnas;
+        this.matrizTablero = new char[filas][columnas];
+        // Inicializa el tablero con espacios en blanco
+        for (int i = 0; i < filas; i++) {
+            Arrays.fill(matrizTablero[i], ' ');
         }
     }
-
-    public void imprimirTablero() {
-        System.out.println("  0 1 2 3 4 5 6 7 8 9");
-        for (int i = 0; i < tamano; i++) {
-            System.out.print(i + " ");
-            for (int j = 0; j < tamano; j++) {
-                System.out.print(casillas[i][j] + " ");
-            }
-            System.out.println();
-        }
+    public int getFilas() {
+        return filas;
     }
 
-    public boolean validarCoordenadas(int fila, int columna) {
-        return fila >= 0 && fila < tamano && columna >= 0 && columna < tamano;
+    public void setFilas(int filas) {
+        this.filas = filas;
     }
 
-    public boolean ocupado(int fila, int columna) {
-        return casillas[fila][columna] != ' ';
+    public int getColumnas() {
+        return columnas;
     }
 
-    public void colocarBarco(Barco barco) {
-        int[] coordenadas = barco.getCoordenadas();
-        for (int i = 0; i < barco.getTamano(); i++) {
-            casillas[coordenadas[i] / 10][coordenadas[i] % 10] = 'O';
-        }
+    public void setColumnas(int columnas) {
+        this.columnas = columnas;
     }
+
+    public char[][] getMatriz() {
+        return matrizTablero;
+    }
+
+    public void setMatriz(char[][] matriz) {
+        this.matrizTablero = matriz;
+    }
+
 }

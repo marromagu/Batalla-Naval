@@ -11,30 +11,48 @@ package Logica;
 
 // Clase Barco que representa un barco en el juego
 class Barco {
+ private int fila;
+    private int columna;
+    private int tamaño;
+    private boolean orientacion; // true para horizontal, false para vertical
 
-    private String nombre;
-    private int tamano;
-    private int[] coordenadas;
-
-    public Barco(String nombre, int tamano) {
-        this.nombre = nombre;
-        this.tamano = tamano;
-        this.coordenadas = new int[tamano];
+    public Barco(int fila, int columna, int tamaño, boolean orientacion) {
+        this.fila = fila;
+        this.columna = columna;
+        this.tamaño = tamaño;
+        this.orientacion = orientacion;
     }
 
-    public String getNombre() {
-        return nombre;
+    public int getFila() {
+        return fila;
     }
 
-    public int getTamano() {
-        return tamano;
+    public void setFila(int fila) {
+        this.fila = fila;
     }
 
-    public int[] getCoordenadas() {
-        return coordenadas;
+    public int getColumna() {
+        return columna;
     }
 
-    public void setCoordenadas(int[] coordenadas) {
-        this.coordenadas = coordenadas;
+    public void setColumna(int columna) {
+        this.columna = columna;
     }
+
+    public int getTamaño() {
+        return tamaño;
+    }
+
+    public void setTamaño(int tamaño) {
+        this.tamaño = tamaño;
+    }
+
+    public boolean isOrientacion() {
+        return orientacion;
+    }
+
+    public void setOrientacion(boolean orientacion) {
+        this.orientacion = orientacion;
+    }
+    
 }

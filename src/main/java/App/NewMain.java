@@ -19,14 +19,8 @@ public class NewMain {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        Juego miJuego = new Juego(10);
-        miJuego.jugar();
-        /*ConexionConBDD miConexionConBDD = new ConexionConBDD();
-        System.out.println(miConexionConBDD.getConexion());*/
-        /*Socket miSocket = null;
-        ConexionServidor miServidor = new ConexionServidor(miSocket);
-        miServidor.EstablecerConexcion();*/
-
+        Juego miJuego = new Juego();
+        miJuego.menuOp();
     }
 
 }

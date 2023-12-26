@@ -4,6 +4,8 @@
  */
 package Logica;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -13,101 +15,82 @@ import java.util.Scanner;
 // Clase Juego que maneja la lógica del juego
 public class Juego {
 
-    private Tablero tablero;
-    private Barco barco;
+    private Jugador miJugador1;
+    private Jugador miJugador2;
 
-    public Juego(int tamano) {
-        this.tablero = new Tablero(tamano);
-        this.barco = new Barco("Barco1", 3); // Puedes cambiar el nombre y tamaño del barco según tus necesidades
+    public Juego() {
+        miJugador1 = new Jugador();
+        miJugador2 = new Jugador();
     }
 
-    public void jugar() {
-        Scanner scanner = new Scanner(System.in);
+    public void menuOp() {
+        int op;
+        Scanner sc = new Scanner(System.in);
+        Jugador j = cambiarJugador(1);
+        do {
+            menu();
+            op = sc.nextInt();
+            switch (op) {
+                case 1:
+                    ponerBarcos(j);
+                    break;
+                case 2:
+                    verTablero(j);
+                    break;
+                case 3:
+                    dispararBarco(j);
+                    break;
+                case 4:
+                    System.out.println("Jugador 1 | Jugador 2");
+                    int o = sc.nextInt();
+                    j = cambiarJugador(o);
+                    break;
+                default:
+                    throw new AssertionError();
+            }
+        } while (op != 0);
+    }
 
-        // Colocar barco en el tablero
-        System.out.println("Coloca tu barco en el tablero.");
-        colocarBarcoEnTablero();
+    public Jugador cambiarJugador(int o) {
+        switch (o) {
+            case 1:
+                return miJugador1;
 
-        // Mostrar el tablero inicial
-        tablero.imprimirTablero();
+            case 2:
+                return miJugador2;
 
-        // Iniciar el juego
-        while (!juegoTerminado()) {
-            // Obtener coordenadas del usuario
-            System.out.print("Ingresa las coordenadas (fila y columna) separadas por espacio: ");
-            int fila = scanner.nextInt();
-            int columna = scanner.nextInt();
+            default:
+                throw new AssertionError();
+        }
+    }
 
-            // Verificar si las coordenadas son válidas
-            if (tablero.validarCoordenadas(fila, columna)) {
-                // Realizar un disparo
-                if (!realizarDisparo(fila, columna)) {
-                    System.out.println("¡Agua!");
-                }
+    public void menu() {
+        System.out.println("\n--------------------------");
+        System.out.println("| 1.- Poner Barcos.       |");
+        System.out.println("| 2.- Ver Tablero.        |");
+        System.out.println("| 3.- Disparar Barcos.    |");
+        System.out.println("| 4.- Cambiar Jugador.    |");
+        System.out.println("| 0.- Para salir.         |");
+        System.out.println("--------------------------");
+    }
 
-                // Mostrar el tablero después del disparo
-                tablero.imprimirTablero();
-            } else {
-                System.out.println("Coordenadas inválidas. Intenta de nuevo.");
+    public void ponerBarcos(Jugador j) {
+        System.out.println("Jugardor: " + j);
+        int c = 0;
+        while (c < 2) {
+            if (j.pedirBarco()) {
+                j.verTablero();
+                c++;
             }
         }
-
-        scanner.close();
     }
 
-    private void colocarBarcoEnTablero() {
-        Scanner scanner = new Scanner(System.in);
-
-        // Obtener coordenadas para el barco
-        int[] coordenadas = new int[barco.getTamano()];
-        System.out.println("Ingresa las coordenadas para el barco (0-9): ");
-        for (int i = 0; i < barco.getTamano(); i++) {
-            System.out.print("Coordenada " + (i + 1) + ": ");
-            coordenadas[i] = scanner.nextInt();
-        }
-
-        // Verificar si las coordenadas son válidas y no ocupadas
-        boolean coordenadasValidas = true;
-        for (int coord : coordenadas) {
-            int fila = coord / 10;
-            int columna = coord % 10;
-            if (!tablero.validarCoordenadas(fila, columna) || tablero.ocupado(fila, columna)) {
-                coordenadasValidas = false;
-                break;
-            }
-        }
-
-        // Colocar el barco en el tablero si las coordenadas son válidas
-        if (coordenadasValidas) {
-            barco.setCoordenadas(coordenadas);
-            tablero.colocarBarco(barco);
-        } else {
-            System.out.println("Coordenadas inválidas. Reinicia el proceso de colocación del barco.");
-            colocarBarcoEnTablero();
-        }
+    public void verTablero(Jugador j) {
+        j.verTablero();
     }
 
-    private boolean realizarDisparo(int fila, int columna) {
-        int[] coordenadasBarco = barco.getCoordenadas();
-        for (int coord : coordenadasBarco) {
-            if (coord == fila * 10 + columna) {
-                System.out.println("¡Impacto!");
-                return true;
-            }
-        }
-        return false;
+    private void dispararBarco(Jugador j) {
+        
     }
 
-    private boolean juegoTerminado() {
-        int[] coordenadasBarco = barco.getCoordenadas();
-        for (int coord : coordenadasBarco) {
-            int fila = coord / 10;
-            int columna = coord % 10;
-            if (tablero.ocupado(fila, columna)) {
-                return false;
-            }
-        }
-        System.out.println("¡Felicidades! Hundiste la flota.");
-        return true;
-    }
 }
