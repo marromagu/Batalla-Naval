@@ -23,9 +23,10 @@ class Tablero {
         this.matrizTablero = new char[filas][columnas];
         // Inicializa el tablero con espacios en blanco
         for (int i = 0; i < filas; i++) {
-            Arrays.fill(matrizTablero[i], ' ');
+            Arrays.fill(matrizTablero[i], '-');
         }
     }
+
     public int getFilas() {
         return filas;
     }
@@ -48,6 +49,22 @@ class Tablero {
 
     public void setMatriz(char[][] matriz) {
         this.matrizTablero = matriz;
+    }
+
+    public void verTablero() {
+        // Imprime el tablero con números de filas
+        for (int fila = 0; fila < filas; fila++) {
+            System.out.print("F " + fila + "| "); // Imprime el número de fila
+            for (int col = 0; col < columnas; col++) {
+                System.out.print(matrizTablero[fila][col] + " ");
+            }
+            System.out.println();
+        }
+        System.out.print("  C  ");
+        for (int col = 0; col < columnas; col++) {
+            System.out.print(col + "|");// Imprime los números de columnas
+        }
+        System.out.println("");
     }
 
 }

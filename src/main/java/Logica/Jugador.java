@@ -13,24 +13,15 @@ import java.util.Scanner;
 public class Jugador {
 
     private Tablero miTablero;
+    private Tablero miTableroDeGuerra;
 
     public Jugador() {
         miTablero = new Tablero(10, 10);
+        miTableroDeGuerra = new Tablero(10, 10);
     }
 
     public void verTablero() {
-        // Imprime el tablero con números de filas
-        for (int fila = 0; fila < miTablero.getFilas(); fila++) {
-            System.out.print("F " + fila + "| "); // Imprime el número de fila
-            for (int col = 0; col < miTablero.getColumnas(); col++) {
-                System.out.print(miTablero.getMatriz()[fila][col] + " ");
-            }
-            System.out.println();
-        }
-        System.out.print("  C ");
-        for (int col = 0; col < miTablero.getColumnas(); col++) {
-            System.out.print(col + "|");// Imprime los números de columnas
-        }
+        miTablero.verTablero();
     }
 
     public boolean pedirBarco() {
@@ -132,43 +123,44 @@ public class Jugador {
         return true; // Hay suficiente espacio y no se sale de los límites
     }
 
-    public void disparar(int fila, int columna) {
+    public void disparar(int fila, int columna, Tablero tuTablero) {
         // Verifica si las coordenadas están dentro de los límites del tablero
-        if (fila < 0 || fila >= miTablero.getFilas() || columna < 0 || columna >= miTablero.getColumnas()) {
+        if (fila < 0 || fila >= tuTablero.getFilas() || columna < 0 || columna >= tuTablero.getColumnas()) {
             System.out.println("Coordenadas fuera de los límites del tablero. Disparo invalido.");
             return;
         }
         // Verifica si ya se había disparado en estas coordenadas
-        if (miTablero.getMatriz()[fila][columna] == 'X' || miTablero.getMatriz()[fila][columna] == 'O') {
-            System.out.println("Ya has disparado en estas coordenadas. Elige otras.");
+        if (miTableroDeGuerra.getMatriz()[fila][columna] == 'X' || miTableroDeGuerra.getMatriz()[fila][columna] == 'T') {
+            System.out.println("Ya has disparado en estas coordenadas.");
             return;
         }
         // Marca la casilla como disparada
-        char resultadoDisparo = dispararEnCoordenadas(fila, columna);
+        char resultadoDisparo = dispararEnCoordenadas(fila, columna, tuTablero);
         // Actualiza el tablero con el resultado del disparo
-        miTablero.getMatriz()[fila][columna] = 'X';
-        // Imprime el tablero después del disparo
-        verTablero();
+        tuTablero.getMatriz()[fila][columna] = 'X';
+        miTableroDeGuerra.getMatriz()[fila][columna] = 'X';
+        miTableroDeGuerra.verTablero();
         // Verifica si se ha hundido algún barco
         if (resultadoDisparo == 'H') {
             System.out.println("¡Barco hundido!");
         } else if (resultadoDisparo == 'T') {
             System.out.println("¡Tocado!");
         } else {
-            System.out.println("Agua. El disparo no alcanzó ningún barco.");
+            System.out.println("Agua.");
         }
     }
 
-    private char dispararEnCoordenadas(int fila, int columna) {
+    private char dispararEnCoordenadas(int fila, int columna, Tablero tuTablero) {
         // Verifica si hay un barco en las coordenadas del disparo
-        if (miTablero.getMatriz()[fila][columna] == 'B') {
+        if (tuTablero.getMatriz()[fila][columna] == 'B') {
             // Marcamos la parte del barco como tocada
-            miTablero.getMatriz()[fila][columna] = 'T';
+            tuTablero.getMatriz()[fila][columna] = 'T';
+            miTableroDeGuerra.getMatriz()[fila][columna] = 'T';
 
             // Verificamos si el barco ha sido completamente tocado
-            if (barcoCompletamenteTocado(fila, columna)) {
+            if (barcoCompletamenteTocado(fila, columna, tuTablero)) {
                 // Marcamos todas las partes del barco como hundidas
-                marcarBarcoHundido(fila, columna);
+                marcarBarcoHundido(fila, columna, tuTablero);
                 return 'H';  // Barco hundido
             } else {
                 return 'T';  // Barco tocado
@@ -178,8 +170,8 @@ public class Jugador {
         }
     }
 
-    private boolean barcoCompletamenteTocado(int fila, int columna) {
-        char[][] matriz = miTablero.getMatriz();
+    private boolean barcoCompletamenteTocado(int fila, int columna, Tablero tuTablero) {
+        char[][] matriz = tuTablero.getMatriz();
         char marca = matriz[fila][columna];
 
         // Verifica horizontalmente
@@ -199,13 +191,14 @@ public class Jugador {
         return true;
     }
 
-    private void marcarBarcoHundido(int fila, int columna) {
-        char[][] matriz = miTablero.getMatriz();
-
+    private void marcarBarcoHundido(int fila, int columna, Tablero tuTablero) {
+        char[][] matriz = tuTablero.getMatriz();
+        char[][] matrizGuerra = tuTablero.getMatriz();
         // Marcar horizontalmente
         for (int i = 0; i < matriz.length; i++) {
             if (matriz[i][columna] == 'T') {
                 matriz[i][columna] = 'H';
+                matrizGuerra[i][columna] = 'H';
             }
         }
 
@@ -213,7 +206,13 @@ public class Jugador {
         for (int j = 0; j < matriz[0].length; j++) {
             if (matriz[fila][j] == 'T') {
                 matriz[fila][j] = 'H';
+                matrizGuerra[fila][j] = 'H';
             }
         }
     }
+
+    public Tablero getMiTablero() {
+        return miTablero;
+    }
+
 }

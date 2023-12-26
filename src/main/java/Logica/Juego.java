@@ -38,7 +38,12 @@ public class Juego {
                     verTablero(j);
                     break;
                 case 3:
-                    dispararBarco(j);
+                    System.out.println("- Coordenadas del disparo.");
+                    System.out.println("Columna: ");
+                    int c = sc.nextInt();
+                    System.out.println("Fila:");
+                    int f = sc.nextInt();
+                    dispararBarco(j, c, f);
                     break;
                 case 4:
                     System.out.println("Jugador 1 | Jugador 2");
@@ -89,8 +94,13 @@ public class Juego {
         j.verTablero();
     }
 
-    private void dispararBarco(Jugador j) {
-        
+    private void dispararBarco(Jugador j, int c, int f) {
+        if (j == miJugador1) {
+            j.disparar(f, c, miJugador2.getMiTablero());
+
+        } else {
+            j.disparar(f, c, miJugador1.getMiTablero());
+        }
     }
 
 }
