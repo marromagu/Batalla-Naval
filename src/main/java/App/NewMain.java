@@ -20,7 +20,8 @@ public class NewMain {
      */
     public static void main(String[] args) {
         Juego miJuego = new Juego();
-        miJuego.menuOp();
+        ConexionConBDD miBDD = new ConexionConBDD();
+        miBDD.getConexion();
     }
 
 }
