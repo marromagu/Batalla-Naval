@@ -5,11 +5,12 @@ import Datos.ConexionConBDD;
 
 public class Juego {
 
-    private final ConexionConBDD miCone = new ConexionConBDD();
+    private final ConexionConBDD miCone;
     private final Jugador miJugador1;
     private final Jugador miJugador2;
 
     public Juego() {
+        miCone = new ConexionConBDD();
         miJugador1 = new Jugador();
         miJugador2 = new Jugador();
     }
@@ -45,19 +46,22 @@ public class Juego {
 
     // Método para gestionar las opciones de inicio
     public void opcionesInicio() {
-        Scanner sc = new Scanner(System.in);
-        int op;
-        do {
-            menuInicio();
-            op = sc.nextInt();
-            switch (op) {
-                case 1 -> {
-                    if (pedirContraseña()) {
-                        opcionesPartida();
+        try (Scanner sc = new Scanner(System.in)) {
+            int op;
+            do {
+                menuInicio();
+                op = sc.nextInt();
+                switch (op) {
+                    case 1 -> {
+                        if (pedirContraseña()) {
+                            opcionesPartida();
+                        }
                     }
                 }
-            }
-        } while (op != 0);
+            } while (op != 0);
+        } catch (Exception e) {
+            System.out.println("Error de entrada: " + e.getMessage());
+        }
     }
 
     // Método para gestionar las opciones de partida
@@ -83,32 +87,35 @@ public class Juego {
 
     // Método para gestionar las opciones durante el juego
     public void opcionesJuego() {
-        Scanner sc = new Scanner(System.in);
-        Jugador j = cambiarJugador(1);
-        int op;
-        do {
-            menuJuego();
-            op = sc.nextInt();
-            switch (op) {
-                case 1 ->
-                    ponerBarcos(j);
-                case 2 ->
-                    verTablero(j);
-                case 3 -> {
-                    System.out.println("- Coordenadas del disparo.");
-                    System.out.println("Columna: ");
-                    int c = sc.nextInt();
-                    System.out.println("Fila:");
-                    int f = sc.nextInt();
-                    dispararBarco(j, c, f);
+        try (Scanner sc = new Scanner(System.in)) {
+            Jugador j = cambiarJugador(1);
+            int op;
+            do {
+                menuJuego();
+                op = sc.nextInt();
+                switch (op) {
+                    case 1 ->
+                        ponerBarcos(j);
+                    case 2 ->
+                        verTablero(j);
+                    case 3 -> {
+                        System.out.println("- Coordenadas del disparo.");
+                        System.out.println("Columna: ");
+                        int c = sc.nextInt();
+                        System.out.println("Fila:");
+                        int f = sc.nextInt();
+                        dispararBarco(j, c, f);
+                    }
+                    case 4 -> {
+                        System.out.println("Jugador 1 | Jugador 2");
+                        int o = sc.nextInt();
+                        j = cambiarJugador(o);
+                    }
                 }
-                case 4 -> {
-                    System.out.println("Jugador 1 | Jugador 2");
-                    int o = sc.nextInt();
-                    j = cambiarJugador(o);
-                }
-            }
-        } while (op != 0);
+            } while (op != 0);
+        } catch (Exception e) {
+            System.out.println("Error de entrada: " + e.getMessage());
+        }
     }
 
     // Método para pedir y validar la contraseña del usuario
