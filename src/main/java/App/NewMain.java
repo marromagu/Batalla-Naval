@@ -8,6 +8,7 @@ import Datos.ConexionConBDD;
 import Servidor.ConexionServidor;
 import java.net.Socket;
 import Logica.Juego;
+import java.util.Scanner;
 
 /**
  *
@@ -19,9 +20,7 @@ public class NewMain {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        Juego miJuego = new Juego();
-        ConexionConBDD miBDD = new ConexionConBDD();
-        miBDD.getConexion();
+        
     }
 
 }

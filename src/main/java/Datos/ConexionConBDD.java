@@ -2,7 +2,11 @@ package Datos;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ConexionConBDD {
 
@@ -41,5 +45,32 @@ public class ConexionConBDD {
             sqle.printStackTrace();
             System.out.println("Error al cerrar la conexión a la BDD");
         }
+    }
+
+    public String consultarContraseña(String nombreUsuario) {
+        String contraseña = "";
+
+        try (Connection conexion = getConexion()) {
+            String sql = "SELECT contraseña FROM Jugadores WHERE nombre = ?";
+
+            try (PreparedStatement statement = conexion.prepareStatement(sql)) {
+                // Establecer el parámetro nombreUsuario en la consulta preparada
+                statement.setString(1, nombreUsuario);
+
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    if (resultSet.next()) {
+                        contraseña = resultSet.getString("contraseña");
+                    } else {
+                        // El usuario no existe
+                        System.out.println("El usuario '" + nombreUsuario + "' no existe.");
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al consultar la contraseña: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return contraseña;
     }
 }
