@@ -139,6 +139,11 @@ public class Juego implements Serializable {
             return false;
         }
     }
+    public int obtenerIdJugador(String nombreUsuario, String contraseña){
+        int contraseñaInt = Integer.parseInt(contraseña);
+        return miCone.consultarIDJugador(nombreUsuario, contraseñaInt);
+        
+    }
 
     // Método para validar la contraseña del usuario
     public boolean validarContraseña(String nombreUsuario, String contraseña) {

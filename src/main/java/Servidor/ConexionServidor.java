@@ -22,6 +22,7 @@ public class ConexionServidor extends Thread {
     private DataInputStream flujo_entrada;
     private DataOutputStream flujo_salida;
     private ObjectOutputStream output;
+    Juego miJuego = new Juego();
 
     /**
      *
@@ -69,10 +70,13 @@ public class ConexionServidor extends Thread {
         try {
             String usuario = flujo_entrada.readUTF();
             String contraseña = flujo_entrada.readUTF();
-            Juego miJuego = new Juego();
+
             validarContraseña = miJuego.validarContraseña(usuario, contraseña);
             System.out.println("Usuario: " + usuario + " Contraseña: " + contraseña + " " + validarContraseña);
             flujo_salida.writeBoolean(validarContraseña);
+            if (validarContraseña) {
+                flujo_salida.writeInt(miJuego.obtenerIdJugador(usuario, contraseña));
+            }
         } catch (IOException ex) {
             Logger.getLogger(ConexionServidor.class.getName()).log(Level.SEVERE, null, ex);
         }

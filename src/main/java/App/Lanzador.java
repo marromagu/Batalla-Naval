@@ -11,7 +11,7 @@ import java.net.Socket;
  *
  * @author DAM_M
  */
-public class NewMain {
+public class Lanzador {
 
     /**
      * @param args the command line arguments
