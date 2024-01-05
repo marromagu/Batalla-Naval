@@ -4,11 +4,8 @@
  */
 package App;
 
-import Datos.ConexionConBDD;
 import Servidor.ConexionServidor;
 import java.net.Socket;
-import Logica.Juego;
-import java.util.Scanner;
 
 /**
  *
@@ -20,7 +17,9 @@ public class NewMain {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        
+        Socket sk = new Socket();
+        ConexionServidor server = new ConexionServidor(sk);
+        server.EstablecerConexcion();
     }
 
 }

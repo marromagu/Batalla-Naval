@@ -1,11 +1,15 @@
+
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package Servidor;
 
+import Logica.Juego;
 import java.io.*;
 import java.net.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -13,8 +17,11 @@ import java.net.*;
  */
 public class ConexionServidor extends Thread {
 
-    Socket skCliente; //Instanciamos el Socket del Cliente.
     static final int Puerto = 2001; //Creamos una constante etatica del puerto por donde se conctara el Cliente.
+    private Socket skCliente; //Instanciamos el Socket del Cliente.
+    private DataInputStream flujo_entrada;
+    private DataOutputStream flujo_salida;
+    private ObjectOutputStream output;
 
     /**
      *
@@ -36,21 +43,60 @@ public class ConexionServidor extends Thread {
                 new ConexionServidor(skCliente).start(); //Atendemos al Cliente con un Thread
             }
         } catch (Exception e) {
-            System.out.println("->Ups, ha ocurrido algo inesperado...");
+            System.out.println("-> Ups, ha ocurrido algo inesperado...");
         }
     }
 
     @Override
     public void run() {
         try {
-            DataOutputStream flujo_salida = new DataOutputStream(skCliente.getOutputStream());
-            flujo_salida.writeUTF("-> Se ha conectado correctamente"); //Atendemos la peticion del cliente
+            flujo_salida = new DataOutputStream(skCliente.getOutputStream());
+            flujo_entrada = new DataInputStream(skCliente.getInputStream());
+            output = new ObjectOutputStream(skCliente.getOutputStream());
+            boolean loggedIn = false;
 
-            skCliente.close(); //Cerramos conexion
-            System.out.println("- Cliente desconectado.");
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+            while (!loggedIn) {
+                loggedIn = login();
+            }
+
+        } catch (IOException e) {
+            System.out.println("--> Error en run: " + e.getMessage());
         }
     }
 
+    private boolean login() {
+        boolean validarContraseña = false;
+        try {
+            String usuario = flujo_entrada.readUTF();
+            String contraseña = flujo_entrada.readUTF();
+            Juego miJuego = new Juego();
+            validarContraseña = miJuego.validarContraseña(usuario, contraseña);
+            System.out.println("Usuario: " + usuario + " Contraseña: " + contraseña + " " + validarContraseña);
+            flujo_salida.writeBoolean(validarContraseña);
+        } catch (IOException ex) {
+            Logger.getLogger(ConexionServidor.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return validarContraseña;
+
+    }
+
+    private void cerrarConexiones() {
+        try {
+            // Cierra la conexión del cliente y otros recursos
+            if (skCliente != null && !skCliente.isClosed()) {
+                skCliente.close();
+                System.out.println("Conexión del Servidor cerrada.");
+            }
+
+            // Cierra flujos de entrada y salida
+            if (flujo_entrada != null) {
+                flujo_entrada.close();
+            }
+            if (flujo_salida != null) {
+                flujo_salida.close();
+            }
+        } catch (IOException e) {
+            System.out.println("Error al cerrar conexiones: " + e.getMessage());
+        }
+    }
 }

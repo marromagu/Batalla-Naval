@@ -2,8 +2,9 @@ package Logica;
 
 import java.util.Scanner;
 import Datos.ConexionConBDD;
+import java.io.Serializable;
 
-public class Juego {
+public class Juego implements Serializable {
 
     private final ConexionConBDD miCone;
     private final Jugador miJugador1;
@@ -16,7 +17,7 @@ public class Juego {
     }
 
     // Menú de inicio del juego
-    public void menuInicio() {
+    private void menuInicio() {
         System.out.println("\n--------------------------");
         System.out.println("| 1.- Login.              |");
         System.out.println("| 0.- Salir.              |");
@@ -24,7 +25,7 @@ public class Juego {
     }
 
     // Menú de opciones de partida
-    public void menuPartida() {
+    private void menuPartida() {
         System.out.println("\n--------------------------");
         System.out.println("| 1.- Buscar partida.     |");
         System.out.println("| 2.- Cargar partida.     |");
@@ -45,7 +46,7 @@ public class Juego {
     }
 
     // Método para gestionar las opciones de inicio
-    public void opcionesInicio() {
+    private void opcionesInicio() {
         try (Scanner sc = new Scanner(System.in)) {
             int op;
             do {
@@ -65,7 +66,7 @@ public class Juego {
     }
 
     // Método para gestionar las opciones de partida
-    public void opcionesPartida() {
+    private void opcionesPartida() {
         try (Scanner sc = new Scanner(System.in)) {
             int op;
             do {
@@ -86,7 +87,7 @@ public class Juego {
     }
 
     // Método para gestionar las opciones durante el juego
-    public void opcionesJuego() {
+    private void opcionesJuego() {
         try (Scanner sc = new Scanner(System.in)) {
             Jugador j = cambiarJugador(1);
             int op;
@@ -140,7 +141,7 @@ public class Juego {
     }
 
     // Método para validar la contraseña del usuario
-    private boolean validarContraseña(String nombreUsuario, String contraseña) {
+    public boolean validarContraseña(String nombreUsuario, String contraseña) {
         String contraseñaGuardada = miCone.consultarContraseña(nombreUsuario);
         return contraseñaGuardada != null && contraseñaGuardada.equals(contraseña);
     }
