@@ -54,33 +54,41 @@ public class ConexionServidor extends Thread {
             flujo_salida = new DataOutputStream(skCliente.getOutputStream());
             flujo_entrada = new DataInputStream(skCliente.getInputStream());
             output = new ObjectOutputStream(skCliente.getOutputStream());
-            boolean loggedIn = false;
 
-            while (!loggedIn) {
-                loggedIn = login();
-            }
-
+//            boolean loggedIn = false;
+//            while (!loggedIn) {
+//                loggedIn = 
+            login();
+//            }
+            cerrarConexiones();
         } catch (IOException e) {
             System.out.println("--> Error en run: " + e.getMessage());
         }
     }
 
     private boolean login() {
-        boolean validarContraseña = false;
+        boolean contraseñaCorrecta = false;
         try {
             String usuario = flujo_entrada.readUTF();
             String contraseña = flujo_entrada.readUTF();
+            int id = -1;
 
-            validarContraseña = miJuego.validarContraseña(usuario, contraseña);
-            System.out.println("Usuario: " + usuario + " Contraseña: " + contraseña + " " + validarContraseña);
-            flujo_salida.writeBoolean(validarContraseña);
-            if (validarContraseña) {
-                flujo_salida.writeInt(miJuego.obtenerIdJugador(usuario, contraseña));
+            //Valida la contraseña y manda un mensaje por consola
+            contraseñaCorrecta = miJuego.validarContraseña(usuario, contraseña);
+            System.out.println("Usuario: " + usuario + " Contraseña: " + contraseña + "  " + contraseñaCorrecta);
+
+            //Le dice al cliente si es correcta o no la contraseña
+            flujo_salida.writeBoolean(contraseñaCorrecta);
+            if (contraseñaCorrecta) {
+                System.out.println("¡Correcto!");
+                //Manda la Id del jugador al servidor si esta es valida
+                id = miJuego.obtenerIdJugador(usuario, contraseña);
             }
+            flujo_salida.writeInt(id);
         } catch (IOException ex) {
             Logger.getLogger(ConexionServidor.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return validarContraseña;
+        return contraseñaCorrecta;
 
     }
 
@@ -89,7 +97,7 @@ public class ConexionServidor extends Thread {
             // Cierra la conexión del cliente y otros recursos
             if (skCliente != null && !skCliente.isClosed()) {
                 skCliente.close();
-                System.out.println("Conexión del Servidor cerrada.");
+                System.out.println("--> Conexión del Servidor cerrada.");
             }
 
             // Cierra flujos de entrada y salida
@@ -100,7 +108,7 @@ public class ConexionServidor extends Thread {
                 flujo_salida.close();
             }
         } catch (IOException e) {
-            System.out.println("Error al cerrar conexiones: " + e.getMessage());
+            System.out.println("--> Error al cerrar conexiones: " + e.getMessage());
         }
     }
 }

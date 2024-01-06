@@ -16,76 +16,6 @@ public class Juego implements Serializable {
         miJugador2 = new Jugador();
     }
 
-    // Menú de inicio del juego
-    private void menuInicio() {
-        System.out.println("\n--------------------------");
-        System.out.println("| 1.- Login.              |");
-        System.out.println("| 0.- Salir.              |");
-        System.out.println("--------------------------");
-    }
-
-    // Menú de opciones de partida
-    private void menuPartida() {
-        System.out.println("\n--------------------------");
-        System.out.println("| 1.- Buscar partida.     |");
-        System.out.println("| 2.- Cargar partida.     |");
-        System.out.println("| 3.- Borrar partida.     |");
-        System.out.println("| 0.- Salir.              |");
-        System.out.println("--------------------------");
-    }
-
-    // Menú de opciones durante el juego
-    private void menuJuego() {
-        System.out.println("\n--------------------------");
-        System.out.println("| 1.- Poner Barcos.       |");
-        System.out.println("| 2.- Ver Tablero.        |");
-        System.out.println("| 3.- Disparar Barcos.    |");
-        System.out.println("| 4.- Cambiar Jugador.    |");
-        System.out.println("| 0.- Para salir.         |");
-        System.out.println("--------------------------");
-    }
-
-    // Método para gestionar las opciones de inicio
-    private void opcionesInicio() {
-        try (Scanner sc = new Scanner(System.in)) {
-            int op;
-            do {
-                menuInicio();
-                op = sc.nextInt();
-                switch (op) {
-                    case 1 -> {
-                        if (pedirContraseña()) {
-                            opcionesPartida();
-                        }
-                    }
-                }
-            } while (op != 0);
-        } catch (Exception e) {
-            System.out.println("Error de entrada: " + e.getMessage());
-        }
-    }
-
-    // Método para gestionar las opciones de partida
-    private void opcionesPartida() {
-        try (Scanner sc = new Scanner(System.in)) {
-            int op;
-            do {
-                menuPartida();
-                op = sc.nextInt();
-                switch (op) {
-                    case 1 ->
-                        buscarPartida();
-                    case 2 ->
-                        cargarPartida();
-                    case 3 ->
-                        borrarPartida();
-                }
-            } while (op != 0);
-        } catch (Exception e) {
-            System.out.println("Error de entrada: " + e.getMessage());
-        }
-    }
-
     // Método para gestionar las opciones durante el juego
     private void opcionesJuego() {
         try (Scanner sc = new Scanner(System.in)) {
@@ -139,6 +69,7 @@ public class Juego implements Serializable {
             return false;
         }
     }
+    // Método para obtener la Id del jugador
     public int obtenerIdJugador(String nombreUsuario, String contraseña){
         int contraseñaInt = Integer.parseInt(contraseña);
         return miCone.consultarIDJugador(nombreUsuario, contraseñaInt);
@@ -149,19 +80,6 @@ public class Juego implements Serializable {
     public boolean validarContraseña(String nombreUsuario, String contraseña) {
         String contraseñaGuardada = miCone.consultarContraseña(nombreUsuario);
         return contraseñaGuardada != null && contraseñaGuardada.equals(contraseña);
-    }
-
-    // Métodos para implementar en el futuro (buscar, cargar y borrar partida)
-    private void buscarPartida() {
-        System.out.println("Método para buscar partida");
-    }
-
-    private void cargarPartida() {
-        System.out.println("Método para cargar partida");
-    }
-
-    private void borrarPartida() {
-        System.out.println("Método para borrar partida");
     }
 
     // Método para cambiar el jugador activo
@@ -180,7 +98,7 @@ public class Juego implements Serializable {
     private void ponerBarcos(Jugador j) {
         System.out.println("Jugador: " + j);
         int c = 0;
-        while (c < 2) {
+        while (c < 3) {
             if (j.pedirBarco()) {
                 j.verTablero();
                 c++;
@@ -200,5 +118,33 @@ public class Juego implements Serializable {
     // Método para mostrar el tablero del jugador
     private void verTablero(Jugador j) {
         j.verTablero();
+    }
+        // Menú de inicio del juego
+    private void menuInicio() {
+        System.out.println("\n--------------------------");
+        System.out.println("| 1.- Login.              |");
+        System.out.println("| 0.- Salir.              |");
+        System.out.println("--------------------------");
+    }
+
+    // Menú de opciones de partida
+    private void menuPartida() {
+        System.out.println("\n--------------------------");
+        System.out.println("| 1.- Buscar partida.     |");
+        System.out.println("| 2.- Cargar partida.     |");
+        System.out.println("| 3.- Borrar partida.     |");
+        System.out.println("| 0.- Salir.              |");
+        System.out.println("--------------------------");
+    }
+
+    // Menú de opciones durante el juego
+    private void menuJuego() {
+        System.out.println("\n--------------------------");
+        System.out.println("| 1.- Poner Barcos.       |");
+        System.out.println("| 2.- Ver Tablero.        |");
+        System.out.println("| 3.- Disparar Barcos.    |");
+        System.out.println("| 4.- Cambiar Jugador.    |");
+        System.out.println("| 0.- Para salir.         |");
+        System.out.println("--------------------------");
     }
 }

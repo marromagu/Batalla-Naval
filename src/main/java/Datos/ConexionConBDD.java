@@ -99,11 +99,12 @@ public class ConexionConBDD {
 
         return idJugador;
     }
+//TODO
 
     public void mostrarPartidasTerminadasPorJugador(int idJugador) {
         try (Connection conexion = getConexion()) {
             String sql = "SELECT id_partida, estado, ganador, ultimo_turno FROM Partidas "
-                    + "WHERE (jugador_1 = ? OR jugador_2 = ?) AND estado = 'Terminada'";
+                    + "WHERE (jugador_1 = ? OR jugador_2 = ?) AND estado = 'X'";
 
             try (PreparedStatement statement = conexion.prepareStatement(sql)) {
                 // Establecer el parámetro idJugador en la consulta preparada
@@ -135,7 +136,7 @@ public class ConexionConBDD {
         try (Connection conexion = getConexion()) {
             String sql = "SELECT id_partida, estado, ganador, ultimo_turno "
                     + "FROM Partidas "
-                    + "WHERE (jugador_1 = ? OR jugador_2 = ?) AND estado = 'En curso' AND ultimo_turno = ?";
+                    + "WHERE (jugador_1 = ? OR jugador_2 = ?) AND estado = 'O' AND ultimo_turno = ?";
 
             try (PreparedStatement statement = conexion.prepareStatement(sql)) {
                 // Establecer los parámetros en la consulta preparada
@@ -168,7 +169,7 @@ public class ConexionConBDD {
         try (Connection conexion = getConexion()) {
             String sql = "SELECT id_partida, estado, ganador, ultimo_turno "
                     + "FROM Partidas "
-                    + "WHERE (jugador_1 = ? OR jugador_2 = ?) AND estado = 'En curso' AND ultimo_turno <> ?";
+                    + "WHERE (jugador_1 = ? OR jugador_2 = ?) AND estado = 'O' AND ultimo_turno <> ?";
 
             try (PreparedStatement statement = conexion.prepareStatement(sql)) {
                 // Establecer los parámetros en la consulta preparada
