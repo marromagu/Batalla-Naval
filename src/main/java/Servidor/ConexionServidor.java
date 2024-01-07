@@ -5,7 +5,7 @@
  */
 package Servidor;
 
-import Logica.Juego;
+import Datos.DatosJugador;
 import java.io.*;
 import java.net.*;
 import java.util.logging.Level;
@@ -21,8 +21,8 @@ public class ConexionServidor extends Thread {
     private Socket skCliente; //Instanciamos el Socket del Cliente.
     private DataInputStream flujo_entrada;
     private DataOutputStream flujo_salida;
-    private ObjectOutputStream output;
-    Juego miJuego = new Juego();
+    private ObjectOutputStream objeto_salida;
+    private DatosJugador misDatos = null;
 
     /**
      *
@@ -44,7 +44,8 @@ public class ConexionServidor extends Thread {
                 new ConexionServidor(skCliente).start(); //Atendemos al Cliente con un Thread
             }
         } catch (Exception e) {
-            System.out.println("-> Ups, ha ocurrido algo inesperado...");
+            System.out.println("-> Ups, ha ocurrido algo inesperado: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -53,14 +54,12 @@ public class ConexionServidor extends Thread {
         try {
             flujo_salida = new DataOutputStream(skCliente.getOutputStream());
             flujo_entrada = new DataInputStream(skCliente.getInputStream());
-            output = new ObjectOutputStream(skCliente.getOutputStream());
+            objeto_salida = new ObjectOutputStream(skCliente.getOutputStream());
 
-//            boolean loggedIn = false;
-//            while (!loggedIn) {
-//                loggedIn = 
-            login();
-//            }
-            cerrarConexiones();
+            if (!login()) {
+                cerrarConexiones();
+                System.out.println("--> Conexion cerrada por usuario o contraseña erroneos.");
+            }
         } catch (IOException e) {
             System.out.println("--> Error en run: " + e.getMessage());
         }
@@ -69,27 +68,42 @@ public class ConexionServidor extends Thread {
     private boolean login() {
         boolean contraseñaCorrecta = false;
         try {
+            // Recogemos los datos de usuario y contraseña
             String usuario = flujo_entrada.readUTF();
-            String contraseña = flujo_entrada.readUTF();
-            int id = -1;
+            int contraseña = flujo_entrada.readInt();
 
-            //Valida la contraseña y manda un mensaje por consola
-            contraseñaCorrecta = miJuego.validarContraseña(usuario, contraseña);
-            System.out.println("Usuario: " + usuario + " Contraseña: " + contraseña + "  " + contraseñaCorrecta);
+            // Creamos un objeto DatosJugador con los datos proporcionados
+            misDatos = new DatosJugador(usuario, contraseña);
 
-            //Le dice al cliente si es correcta o no la contraseña
-            flujo_salida.writeBoolean(contraseñaCorrecta);
+            // Validamos la contraseña y mostramos un mensaje por consola
+            contraseñaCorrecta = misDatos.validarContraseña();
+            System.out.println("Usuario: " + usuario + " Contraseña: " + contraseña + " - " + (contraseñaCorrecta ? "Correcta" : "Incorrecta"));
+
             if (contraseñaCorrecta) {
                 System.out.println("¡Correcto!");
-                //Manda la Id del jugador al servidor si esta es valida
-                id = miJuego.obtenerIdJugador(usuario, contraseña);
+                // Mandamos el Objeto de los datos del Cliente
+                enviarObjeto(misDatos);
+                System.out.println(misDatos.toString());//Para verificar que todo este bien.
             }
-            flujo_salida.writeInt(id);
         } catch (IOException ex) {
             Logger.getLogger(ConexionServidor.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("--> Error en Login: " + ex.getMessage());
+        } finally {
+            cerrarConexiones();
         }
         return contraseñaCorrecta;
+    }
 
+    // Método para enviar un objeto por socket
+    public void enviarObjeto(Object objeto) {
+        try {
+            objeto_salida.writeObject(objeto);
+            objeto_salida.flush();
+            System.out.println("Objeto enviado con éxito.");
+        } catch (IOException e) {
+            System.err.println("Error al enviar el objeto por el socket: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private void cerrarConexiones() {

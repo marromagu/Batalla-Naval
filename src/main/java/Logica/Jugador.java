@@ -14,17 +14,6 @@ public class Jugador {
 
     private final Tablero miTablero;
     private final Tablero miTableroDeGuerra;
-    private int idJugador;
-    private String nombre;
-    private int Contraseña;
-
-    public Jugador(int idJugador, String nombre, int Contraseña) {
-        miTablero = new Tablero(10, 10);
-        miTableroDeGuerra = new Tablero(10, 10);
-        this.idJugador = idJugador;
-        this.nombre = nombre;
-        this.Contraseña = Contraseña;
-    }
 
     public Jugador() {
         miTablero = new Tablero(10, 10);

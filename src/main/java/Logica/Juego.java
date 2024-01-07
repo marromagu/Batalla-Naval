@@ -1,85 +1,13 @@
 package Logica;
 
-import java.util.Scanner;
-import Datos.ConexionConBDD;
-import java.io.Serializable;
+public class Juego {
 
-public class Juego implements Serializable {
-
-    private final ConexionConBDD miCone;
     private final Jugador miJugador1;
     private final Jugador miJugador2;
 
     public Juego() {
-        miCone = new ConexionConBDD();
         miJugador1 = new Jugador();
         miJugador2 = new Jugador();
-    }
-
-    // Método para gestionar las opciones durante el juego
-    private void opcionesJuego() {
-        try (Scanner sc = new Scanner(System.in)) {
-            Jugador j = cambiarJugador(1);
-            int op;
-            do {
-                menuJuego();
-                op = sc.nextInt();
-                switch (op) {
-                    case 1 ->
-                        ponerBarcos(j);
-                    case 2 ->
-                        verTablero(j);
-                    case 3 -> {
-                        System.out.println("- Coordenadas del disparo.");
-                        System.out.println("Columna: ");
-                        int c = sc.nextInt();
-                        System.out.println("Fila:");
-                        int f = sc.nextInt();
-                        dispararBarco(j, c, f);
-                    }
-                    case 4 -> {
-                        System.out.println("Jugador 1 | Jugador 2");
-                        int o = sc.nextInt();
-                        j = cambiarJugador(o);
-                    }
-                }
-            } while (op != 0);
-        } catch (Exception e) {
-            System.out.println("Error de entrada: " + e.getMessage());
-        }
-    }
-
-    // Método para pedir y validar la contraseña del usuario
-    private boolean pedirContraseña() {
-        try (Scanner leer = new Scanner(System.in)) {
-            System.out.println("Usuario:");
-            String nombreUsuario = leer.nextLine();
-            System.out.println("Contraseña:");
-            String contraseña = leer.nextLine();
-
-            if (!validarContraseña(nombreUsuario, contraseña)) {
-                System.out.println("Contraseña o Usuario incorrectos.");
-                return false;
-            } else {
-                System.out.println("Bienvenido.");
-                return true;
-            }
-        } catch (Exception e) {
-            System.out.println("Error de entrada: " + e.getMessage());
-            return false;
-        }
-    }
-    // Método para obtener la Id del jugador
-    public int obtenerIdJugador(String nombreUsuario, String contraseña){
-        int contraseñaInt = Integer.parseInt(contraseña);
-        return miCone.consultarIDJugador(nombreUsuario, contraseñaInt);
-        
-    }
-
-    // Método para validar la contraseña del usuario
-    public boolean validarContraseña(String nombreUsuario, String contraseña) {
-        String contraseñaGuardada = miCone.consultarContraseña(nombreUsuario);
-        return contraseñaGuardada != null && contraseñaGuardada.equals(contraseña);
     }
 
     // Método para cambiar el jugador activo
@@ -118,33 +46,5 @@ public class Juego implements Serializable {
     // Método para mostrar el tablero del jugador
     private void verTablero(Jugador j) {
         j.verTablero();
-    }
-        // Menú de inicio del juego
-    private void menuInicio() {
-        System.out.println("\n--------------------------");
-        System.out.println("| 1.- Login.              |");
-        System.out.println("| 0.- Salir.              |");
-        System.out.println("--------------------------");
-    }
-
-    // Menú de opciones de partida
-    private void menuPartida() {
-        System.out.println("\n--------------------------");
-        System.out.println("| 1.- Buscar partida.     |");
-        System.out.println("| 2.- Cargar partida.     |");
-        System.out.println("| 3.- Borrar partida.     |");
-        System.out.println("| 0.- Salir.              |");
-        System.out.println("--------------------------");
-    }
-
-    // Menú de opciones durante el juego
-    private void menuJuego() {
-        System.out.println("\n--------------------------");
-        System.out.println("| 1.- Poner Barcos.       |");
-        System.out.println("| 2.- Ver Tablero.        |");
-        System.out.println("| 3.- Disparar Barcos.    |");
-        System.out.println("| 4.- Cambiar Jugador.    |");
-        System.out.println("| 0.- Para salir.         |");
-        System.out.println("--------------------------");
     }
 }

@@ -1,14 +1,15 @@
 package Datos;
 
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
-public class ConexionConBDD {
+public class ConexionConBDD implements Serializable {
 
-    private Connection conexion = null;
     private final String NameDataBase = "BDD_HundirLaFlota";
     private final String User = "root";
     private final String Password = "root";
@@ -19,10 +20,10 @@ public class ConexionConBDD {
     }
 
     public Connection getConexion() {
+        Connection conexion = null;
         try {
             Class.forName(Driver);
             conexion = DriverManager.getConnection(URL, User, Password);
-            System.out.println("Se conectó a la BDD.");
         } catch (ClassNotFoundException cnfe) {
             cnfe.printStackTrace();
             System.out.println("Error: Controlador JDBC no encontrado");
@@ -33,7 +34,7 @@ public class ConexionConBDD {
         return conexion;
     }
 
-    public void cerrarConexion() {
+    public void cerrarConexion(Connection conexion) {
         try {
             if (conexion != null && !conexion.isClosed()) {
                 conexion.close();
@@ -45,8 +46,8 @@ public class ConexionConBDD {
         }
     }
 
-    public String consultarContraseña(String nombreUsuario) {
-        String contraseña = "";
+    public int consultarContraseña(String nombreUsuario) {
+        int contraseña = 0;
 
         try (Connection conexion = getConexion()) {
             String sql = "SELECT contraseña FROM Jugadores WHERE nombre = ?";
@@ -57,7 +58,7 @@ public class ConexionConBDD {
 
                 try (ResultSet resultSet = statement.executeQuery()) {
                     if (resultSet.next()) {
-                        contraseña = resultSet.getString("contraseña");
+                        contraseña = resultSet.getInt("contraseña");
                     } else {
                         // El usuario no existe
                         System.out.println("El usuario '" + nombreUsuario + "' no existe.");
@@ -99,9 +100,10 @@ public class ConexionConBDD {
 
         return idJugador;
     }
-//TODO
 
-    public void mostrarPartidasTerminadasPorJugador(int idJugador) {
+    public ArrayList<String> obtenerPartidasTerminadasPorJugador(int idJugador) {
+        ArrayList<String> listaPartidasTerminadas = new ArrayList<>();
+
         try (Connection conexion = getConexion()) {
             String sql = "SELECT id_partida, estado, ganador, ultimo_turno FROM Partidas "
                     + "WHERE (jugador_1 = ? OR jugador_2 = ?) AND estado = 'X'";
@@ -118,21 +120,26 @@ public class ConexionConBDD {
                         int ganador = resultSet.getInt("ganador");
                         int ultimoTurno = resultSet.getInt("ultimo_turno");
 
-                        System.out.println("ID Partida: " + idPartida);
-                        System.out.println("Estado: " + estado);
-                        System.out.println("Ganador (ID): " + ganador);
-                        System.out.println("Último Turno (ID): " + ultimoTurno);
-                        System.out.println("------------------------------");
+                        // Crear cadena representativa de la partida
+                        String representacionPartida = String.format("ID Partida: %d, Estado: %s, Ganador (ID): %d, Último Turno (ID): %d",
+                                idPartida, estado, ganador, ultimoTurno);
+
+                        // Agregar la representación al ArrayList
+                        listaPartidasTerminadas.add(representacionPartida);
                     }
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error al mostrar las partidas terminadas: " + e.getMessage());
+            System.out.println("Error al obtener las partidas terminadas: " + e.getMessage());
             e.printStackTrace();
         }
+
+        return listaPartidasTerminadas;
     }
 
-    public void mostrarPartidasNoTerminadasConTurno(int idJugador) {
+    public ArrayList<String> obtenerPartidasNoTerminadasConTurno(int idJugador) {
+        ArrayList<String> listaPartidasNoTerminadasConTurno = new ArrayList<>();
+
         try (Connection conexion = getConexion()) {
             String sql = "SELECT id_partida, estado, ganador, ultimo_turno "
                     + "FROM Partidas "
@@ -151,21 +158,26 @@ public class ConexionConBDD {
                         int ganador = resultSet.getInt("ganador");
                         int ultimoTurno = resultSet.getInt("ultimo_turno");
 
-                        System.out.println("ID Partida: " + idPartida);
-                        System.out.println("Estado: " + estado);
-                        System.out.println("Ganador (ID): " + ganador);
-                        System.out.println("Último Turno (ID): " + ultimoTurno);
-                        System.out.println("------------------------------");
+                        // Crear cadena representativa de la partida
+                        String representacionPartida = String.format("ID Partida: %d, Estado: %s, Ganador (ID): %d, Último Turno (ID): %d",
+                                idPartida, estado, ganador, ultimoTurno);
+
+                        // Agregar la representación al ArrayList
+                        listaPartidasNoTerminadasConTurno.add(representacionPartida);
                     }
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error al mostrar las partidas no terminadas con turno: " + e.getMessage());
+            System.out.println("Error al obtener las partidas no terminadas con turno: " + e.getMessage());
             e.printStackTrace();
         }
+
+        return listaPartidasNoTerminadasConTurno;
     }
 
-    public void mostrarPartidasNoTerminadasSinTurno(int idJugador) {
+    public ArrayList<String> obtenerPartidasNoTerminadasSinTurno(int idJugador) {
+        ArrayList<String> listaPartidasNoTerminadasSinTurno = new ArrayList<>();
+
         try (Connection conexion = getConexion()) {
             String sql = "SELECT id_partida, estado, ganador, ultimo_turno "
                     + "FROM Partidas "
@@ -184,18 +196,21 @@ public class ConexionConBDD {
                         int ganador = resultSet.getInt("ganador");
                         int ultimoTurno = resultSet.getInt("ultimo_turno");
 
-                        System.out.println("ID Partida: " + idPartida);
-                        System.out.println("Estado: " + estado);
-                        System.out.println("Ganador (ID): " + ganador);
-                        System.out.println("Último Turno (ID): " + ultimoTurno);
-                        System.out.println("------------------------------");
+                        // Crear cadena representativa de la partida
+                        String representacionPartida = String.format("ID Partida: %d, Estado: %s, Ganador (ID): %d, Último Turno (ID): %d",
+                                idPartida, estado, ganador, ultimoTurno);
+
+                        // Agregar la representación al ArrayList
+                        listaPartidasNoTerminadasSinTurno.add(representacionPartida);
                     }
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error al mostrar las partidas no terminadas sin turno: " + e.getMessage());
+            System.out.println("Error al obtener las partidas no terminadas sin turno: " + e.getMessage());
             e.printStackTrace();
         }
+
+        return listaPartidasNoTerminadasSinTurno;
     }
 
 }

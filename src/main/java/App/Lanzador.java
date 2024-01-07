@@ -21,10 +21,6 @@ public class Lanzador {
         Socket sk = new Socket();
         ConexionServidor server = new ConexionServidor(sk);
         server.EstablecerConexcion();
-//        ConexionConBDD c = new ConexionConBDD();
-//        c.mostrarPartidasTerminadasPorJugador(1);
-//        c.mostrarPartidasNoTerminadasSinTurno(1);
-//        c.mostrarPartidasNoTerminadasConTurno(1);
     }
 
 }
