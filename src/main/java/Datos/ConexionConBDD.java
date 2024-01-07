@@ -26,10 +26,8 @@ public class ConexionConBDD implements Serializable {
             Class.forName(Driver);
             conexion = DriverManager.getConnection(URL, User, Password);
         } catch (ClassNotFoundException cnfe) {
-            cnfe.printStackTrace();
             System.out.println("Error: Controlador JDBC no encontrado");
         } catch (SQLException sqle) {
-            sqle.printStackTrace();
             System.out.println("Error al conectar a la BDD");
         }
         return conexion;
@@ -42,7 +40,6 @@ public class ConexionConBDD implements Serializable {
                 System.out.println("Se cerró la conexión a la BDD.");
             }
         } catch (SQLException sqle) {
-            sqle.printStackTrace();
             System.out.println("Error al cerrar la conexión a la BDD");
         }
     }
@@ -68,7 +65,6 @@ public class ConexionConBDD implements Serializable {
             }
         } catch (SQLException e) {
             System.out.println("Error al consultar la contraseña: " + e.getMessage());
-            e.printStackTrace();
         }
 
         return contraseña;
@@ -96,7 +92,6 @@ public class ConexionConBDD implements Serializable {
             }
         } catch (SQLException e) {
             System.out.println("Error al obtener la ID del jugador: " + e.getMessage());
-            e.printStackTrace();
         }
 
         return idJugador;
@@ -132,7 +127,6 @@ public class ConexionConBDD implements Serializable {
             }
         } catch (SQLException e) {
             System.out.println("Error al obtener las partidas terminadas: " + e.getMessage());
-            e.printStackTrace();
         }
 
         return mapaPartidasTerminadas;
@@ -170,7 +164,6 @@ public class ConexionConBDD implements Serializable {
             }
         } catch (SQLException e) {
             System.out.println("Error al obtener las partidas no terminadas con turno: " + e.getMessage());
-            e.printStackTrace();
         }
 
         return mapaPartidasNoTerminadasConTurno;
@@ -208,7 +201,6 @@ public class ConexionConBDD implements Serializable {
             }
         } catch (SQLException e) {
             System.out.println("Error al obtener las partidas no terminadas sin turno: " + e.getMessage());
-            e.printStackTrace();
         }
 
         return mapaPartidasNoTerminadasSinTurno;
@@ -243,7 +235,6 @@ public class ConexionConBDD implements Serializable {
             }
         } catch (SQLException e) {
             System.out.println("Error al obtener los disparos de la partida: " + e.getMessage());
-            e.printStackTrace();
         }
 
         return listaDisparos;
@@ -275,7 +266,6 @@ public class ConexionConBDD implements Serializable {
             }
         } catch (SQLException e) {
             System.out.println("Error al rendirse en la partida: " + e.getMessage());
-            e.printStackTrace();
             return false; // Rendición no exitosa debido a un error
         }
     }
@@ -300,10 +290,75 @@ public class ConexionConBDD implements Serializable {
             }
         } catch (SQLException e) {
             System.out.println("Error al obtener la ID del otro jugador: " + e.getMessage());
-            e.printStackTrace();
         }
 
         return idOtroJugador;
+    }
+
+    public boolean hayBarcoEnemigoEnCoordenada(int idJugador, int idPartida, int posicionX, int posicionY) {
+        boolean hayBarcoEnemigo = false;
+
+        try (Connection conexion = getConexion()) {
+            String sql = "SELECT B.id_barco "
+                    + "FROM Barcos B "
+                    + "JOIN Disparos D ON B.id_partida = D.id_partida "
+                    + "               AND B.posicion_x = D.posicion_x "
+                    + "               AND B.posicion_y = D.posicion_y "
+                    + "               AND B.jugador_id != D.jugador_id "
+                    + "WHERE B.id_partida = ? "
+                    + "  AND B.jugador_id = ? "
+                    + "  AND B.posicion_x = ? "
+                    + "  AND B.posicion_y = ?";
+
+            try (PreparedStatement statement = conexion.prepareStatement(sql)) {
+                statement.setInt(1, idPartida);
+                statement.setInt(2, idJugador);
+                statement.setInt(3, posicionX);
+                statement.setInt(4, posicionY);
+
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    hayBarcoEnemigo = resultSet.next(); // Devuelve true si hay al menos una fila en el resultado
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al verificar la presencia de un barco enemigo en la coordenada: " + e.getMessage());
+        }
+
+        return hayBarcoEnemigo;
+    }
+
+    public void registrarDisparo(int idPartida, int idJugador, int posicionX, int posicionY) {
+        try (Connection conexion = getConexion()) {
+            boolean hayBarcoEnemigo = hayBarcoEnemigoEnCoordenada(idJugador, idPartida, posicionX, posicionY);
+
+            // Determinar el resultado del disparo (Tocado o Agua)
+            String resultadoFinal = hayBarcoEnemigo ? "T" : "A";
+
+            // Insertar un nuevo disparo en la tabla Disparos
+            String insertDisparoSql = "INSERT INTO Disparos (id_partida, jugador_id, posicion_x, posicion_y, resultado) VALUES (?, ?, ?, ?, ?)";
+            try (PreparedStatement insertDisparoStatement = conexion.prepareStatement(insertDisparoSql)) {
+                insertDisparoStatement.setInt(1, idPartida);
+                insertDisparoStatement.setInt(2, idJugador);
+                insertDisparoStatement.setInt(3, posicionX);
+                insertDisparoStatement.setInt(4, posicionY);
+                insertDisparoStatement.setString(5, resultadoFinal);
+
+                insertDisparoStatement.executeUpdate();
+            }
+
+            // Actualizar la tabla Partidas con el último turno
+            String updatePartidaSql = "UPDATE Partidas SET ultimo_turno = ? WHERE id_partida = ?";
+            try (PreparedStatement updatePartidaStatement = conexion.prepareStatement(updatePartidaSql)) {
+                int idOtroJugador = obtenerOtroJugador(idPartida, idJugador);
+                updatePartidaStatement.setInt(1, idOtroJugador);
+                updatePartidaStatement.setInt(2, idPartida);
+
+                updatePartidaStatement.executeUpdate();
+            }
+            System.out.println("-Disparo: Jugador " + idJugador + " Parida " + idPartida);
+        } catch (SQLException e) {
+            System.out.println("Error al registrar el disparo: " + e.getMessage());
+        }
     }
 
 }

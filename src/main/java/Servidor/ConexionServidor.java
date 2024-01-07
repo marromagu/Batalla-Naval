@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 public class ConexionServidor extends Thread {
 
     static final int Puerto = 2001; //Creamos una constante etatica del puerto por donde se conctara el Cliente.
-    private Socket skCliente; //Instanciamos el Socket del Cliente.
+    private final Socket skCliente; //Instanciamos el Socket del Cliente.
     private DataInputStream flujo_entrada;
     private DataOutputStream flujo_salida;
     private ObjectOutputStream objeto_salida;
@@ -43,9 +43,8 @@ public class ConexionServidor extends Thread {
                 System.out.println("+ Cliente conectado.");
                 new ConexionServidor(skCliente).start(); //Atendemos al Cliente con un Thread
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             System.out.println("-> Ups, ha ocurrido algo inesperado: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 
@@ -63,13 +62,15 @@ public class ConexionServidor extends Thread {
             while (true) {
                 int op = flujo_entrada.readInt();
                 switch (op) {
-                    case 1:
+                    case 1 ->
                         enviarRepeticion();
-                        break;
-                    case 2:
+                    case 2 ->
                         recibirRendicion();
-                        break;
-                    default:
+                    case 3 ->
+                        recibirCoordenadas();
+                    case 4 ->
+                        enviarListaTerminada();
+                    default ->
                         throw new AssertionError();
                 }
             }
@@ -138,8 +139,25 @@ public class ConexionServidor extends Thread {
             System.out.println("Objeto enviado con éxito.");
         } catch (IOException e) {
             System.err.println("Error al enviar el objeto por el socket: " + e.getMessage());
-            e.printStackTrace();
         }
+    }
+
+    private void recibirCoordenadas() {
+        try {
+            int id_jugador = flujo_entrada.readInt();
+            int id_partida = flujo_entrada.readInt();
+            int coordenada_x = flujo_entrada.readInt();
+            int coordenada_y = flujo_entrada.readInt();
+            misDatos.disparar(id_partida, id_jugador, coordenada_x, coordenada_y);
+        } catch (IOException ex) {
+            System.out.println("--> Error al recibir Coordenadas: " + ex.getMessage());
+        }
+    }
+
+    private void enviarListaTerminada() {
+        enviarObjeto(misDatos.getListaPartidaTermindas());
+        System.out.println("--> Enviar Lista Terminada");
+
     }
 
     private void cerrarConexiones() {
