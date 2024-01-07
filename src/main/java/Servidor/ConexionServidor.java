@@ -60,10 +60,20 @@ public class ConexionServidor extends Thread {
                 cerrarConexiones();
                 System.out.println("--> Conexion cerrada por usuario o contraseña erroneos.");
             }
-            while (true) {                
-                 enviarRepeticion();
+            while (true) {
+                int op = flujo_entrada.readInt();
+                switch (op) {
+                    case 1:
+                        enviarRepeticion();
+                        break;
+                    case 2:
+                        recibirRendicion();
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
             }
-           
+
         } catch (IOException e) {
             System.out.println("--> Error en run: " + e.getMessage());
         }
@@ -92,7 +102,7 @@ public class ConexionServidor extends Thread {
         } catch (IOException ex) {
             Logger.getLogger(ConexionServidor.class.getName()).log(Level.SEVERE, null, ex);
             System.out.println("--> Error en Login: " + ex.getMessage());
-        } 
+        }
         return contraseñaCorrecta;
     }
 
@@ -104,6 +114,18 @@ public class ConexionServidor extends Thread {
         } catch (IOException ex) {
             Logger.getLogger(ConexionServidor.class.getName()).log(Level.SEVERE, null, ex);
             System.out.println("--> Error en enviar Repeticion: " + ex.getMessage());
+        }
+
+    }
+
+    public void recibirRendicion() {
+        try {
+            int id_jugador = flujo_entrada.readInt();
+            int id_partida = flujo_entrada.readInt();
+            flujo_salida.writeBoolean(misDatos.rendirse(id_jugador, id_partida));
+            System.out.println("Rendicion recibida con éxito.");
+        } catch (IOException ex) {
+            Logger.getLogger(ConexionServidor.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }

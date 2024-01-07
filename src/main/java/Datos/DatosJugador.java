@@ -1,11 +1,8 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package Datos;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  *
@@ -15,13 +12,13 @@ public class DatosJugador implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private ConexionConBDD miBDD;
+    private final ConexionConBDD miBDD;
     private int idJugador;
-    private String usuario;
-    private int contraseña;
-    private ArrayList<String> listaPartidaTermindas;
-    private ArrayList<String> listaPartidasMiTurno;
-    private ArrayList<String> listaPartidasSuTurno;
+    private final String usuario;
+    private final int contraseña;
+    private HashMap<Integer, String> listaPartidaTermindas;
+    private HashMap<Integer, String> listaPartidasMiTurno;
+    private HashMap<Integer, String> listaPartidasSuTurno;
 
     public DatosJugador(String nombre, int contraseña) {
         miBDD = new ConexionConBDD();
@@ -31,6 +28,10 @@ public class DatosJugador implements Serializable {
         this.listaPartidaTermindas = miBDD.obtenerPartidasTerminadasPorJugador(idJugador);
         this.listaPartidasMiTurno = miBDD.obtenerPartidasNoTerminadasConTurno(idJugador);
         this.listaPartidasSuTurno = miBDD.obtenerPartidasNoTerminadasSinTurno(idJugador);
+    }
+
+    public boolean rendirse(int idJugador, int id_partida) {
+        return miBDD.rendirseEnPartida(idJugador, id_partida);
     }
 
     public ArrayList<String> repeticion(int id_partida) {
@@ -56,27 +57,27 @@ public class DatosJugador implements Serializable {
         this.idJugador = idJugador;
     }
 
-    public ArrayList<String> getListaPartidaTermindas() {
+    public HashMap<Integer, String> getListaPartidaTermindas() {
         return listaPartidaTermindas;
     }
 
-    public void setListaPartidaTermindas(ArrayList<String> listaPartidaTermindas) {
+    public void setListaPartidaTermindas(HashMap<Integer, String> listaPartidaTermindas) {
         this.listaPartidaTermindas = listaPartidaTermindas;
     }
 
-    public ArrayList<String> getListaPartidasMiTurno() {
+    public HashMap<Integer, String> getListaPartidasMiTurno() {
         return listaPartidasMiTurno;
     }
 
-    public void setListaPartidasMiTurno(ArrayList<String> listaPartidasMiTurno) {
+    public void setListaPartidasMiTurno(HashMap<Integer, String> listaPartidasMiTurno) {
         this.listaPartidasMiTurno = listaPartidasMiTurno;
     }
 
-    public ArrayList<String> getListaPartidasSuTurno() {
+    public HashMap<Integer, String> getListaPartidasSuTurno() {
         return listaPartidasSuTurno;
     }
 
-    public void setListaPartidasSuTurno(ArrayList<String> listaPartidasSuTurno) {
+    public void setListaPartidasSuTurno(HashMap<Integer, String> listaPartidasSuTurno) {
         this.listaPartidasSuTurno = listaPartidasSuTurno;
     }
 

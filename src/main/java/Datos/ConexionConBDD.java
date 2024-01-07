@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class ConexionConBDD implements Serializable {
 
@@ -101,8 +102,8 @@ public class ConexionConBDD implements Serializable {
         return idJugador;
     }
 
-    public ArrayList<String> obtenerPartidasTerminadasPorJugador(int idJugador) {
-        ArrayList<String> listaPartidasTerminadas = new ArrayList<>();
+    public HashMap<Integer, String> obtenerPartidasTerminadasPorJugador(int idJugador) {
+        HashMap<Integer, String> mapaPartidasTerminadas = new HashMap<>();
 
         try (Connection conexion = getConexion()) {
             String sql = "SELECT id_partida, estado, ganador, ultimo_turno FROM Partidas "
@@ -124,8 +125,8 @@ public class ConexionConBDD implements Serializable {
                         String representacionPartida = String.format("ID Partida: %d, Estado: %s, Ganador (ID): %d, Último Turno (ID): %d",
                                 idPartida, estado, ganador, ultimoTurno);
 
-                        // Agregar la representación al ArrayList
-                        listaPartidasTerminadas.add(representacionPartida);
+                        // Agregar la representación al HashMap
+                        mapaPartidasTerminadas.put(idPartida, representacionPartida);
                     }
                 }
             }
@@ -134,11 +135,11 @@ public class ConexionConBDD implements Serializable {
             e.printStackTrace();
         }
 
-        return listaPartidasTerminadas;
+        return mapaPartidasTerminadas;
     }
 
-    public ArrayList<String> obtenerPartidasNoTerminadasConTurno(int idJugador) {
-        ArrayList<String> listaPartidasNoTerminadasConTurno = new ArrayList<>();
+    public HashMap<Integer, String> obtenerPartidasNoTerminadasConTurno(int idJugador) {
+        HashMap<Integer, String> mapaPartidasNoTerminadasConTurno = new HashMap<>();
 
         try (Connection conexion = getConexion()) {
             String sql = "SELECT id_partida, estado, ganador, ultimo_turno "
@@ -162,8 +163,8 @@ public class ConexionConBDD implements Serializable {
                         String representacionPartida = String.format("ID Partida: %d, Estado: %s, Ganador (ID): %d, Último Turno (ID): %d",
                                 idPartida, estado, ganador, ultimoTurno);
 
-                        // Agregar la representación al ArrayList
-                        listaPartidasNoTerminadasConTurno.add(representacionPartida);
+                        // Agregar la representación al HashMap
+                        mapaPartidasNoTerminadasConTurno.put(idPartida, representacionPartida);
                     }
                 }
             }
@@ -172,11 +173,11 @@ public class ConexionConBDD implements Serializable {
             e.printStackTrace();
         }
 
-        return listaPartidasNoTerminadasConTurno;
+        return mapaPartidasNoTerminadasConTurno;
     }
 
-    public ArrayList<String> obtenerPartidasNoTerminadasSinTurno(int idJugador) {
-        ArrayList<String> listaPartidasNoTerminadasSinTurno = new ArrayList<>();
+    public HashMap<Integer, String> obtenerPartidasNoTerminadasSinTurno(int idJugador) {
+        HashMap<Integer, String> mapaPartidasNoTerminadasSinTurno = new HashMap<>();
 
         try (Connection conexion = getConexion()) {
             String sql = "SELECT id_partida, estado, ganador, ultimo_turno "
@@ -200,8 +201,8 @@ public class ConexionConBDD implements Serializable {
                         String representacionPartida = String.format("ID Partida: %d, Estado: %s, Ganador (ID): %d, Último Turno (ID): %d",
                                 idPartida, estado, ganador, ultimoTurno);
 
-                        // Agregar la representación al ArrayList
-                        listaPartidasNoTerminadasSinTurno.add(representacionPartida);
+                        // Agregar la representación al HashMap
+                        mapaPartidasNoTerminadasSinTurno.put(idPartida, representacionPartida);
                     }
                 }
             }
@@ -210,7 +211,7 @@ public class ConexionConBDD implements Serializable {
             e.printStackTrace();
         }
 
-        return listaPartidasNoTerminadasSinTurno;
+        return mapaPartidasNoTerminadasSinTurno;
     }
 
     public ArrayList<String> obtenerDisparosDePartida(int idPartida) {
@@ -246,6 +247,63 @@ public class ConexionConBDD implements Serializable {
         }
 
         return listaDisparos;
+    }
+
+    public boolean rendirseEnPartida(int idJugador, int idPartida) {
+        try (Connection conexion = getConexion()) {
+            String sql = "UPDATE Partidas "
+                    + "SET estado = 'X', ganador = ?, ultimo_turno = ? "
+                    + "WHERE id_partida = ? AND estado = 'O' AND ultimo_turno <> ?";
+
+            try (PreparedStatement statement = conexion.prepareStatement(sql)) {
+                // Establecer los parámetros en la consulta preparada
+                statement.setInt(1, obtenerOtroJugador(idPartida, idJugador)); // Obtener la ID del otro jugador
+                statement.setInt(2, idJugador); // Establecer al jugador que se rinde como último turno
+                statement.setInt(3, idPartida);
+                statement.setInt(4, idJugador);
+
+                // Ejecutar la actualización
+                int filasAfectadas = statement.executeUpdate();
+
+                if (filasAfectadas > 0) {
+                    System.out.println("El Jugador " + idJugador + " se ha rendido en la Partida " + idPartida);
+                    return true;  // Rendición exitosa
+                } else {
+                    System.out.println("La rendición no pudo ser procesada. Asegúrese de que la partida esté en curso y el último turno no sea del jugador que se rinde.");
+                    return false; // Rendición no exitosa
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al rendirse en la partida: " + e.getMessage());
+            e.printStackTrace();
+            return false; // Rendición no exitosa debido a un error
+        }
+    }
+
+    private int obtenerOtroJugador(int idPartida, int idJugador) {
+        int idOtroJugador = -1;
+
+        try (Connection conexion = getConexion()) {
+            String sql = "SELECT jugador_1, jugador_2 FROM Partidas WHERE id_partida = ?";
+
+            try (PreparedStatement statement = conexion.prepareStatement(sql)) {
+                statement.setInt(1, idPartida);
+
+                try (var resultSet = statement.executeQuery()) {
+                    if (resultSet.next()) {
+                        int jugador1 = resultSet.getInt("jugador_1");
+                        int jugador2 = resultSet.getInt("jugador_2");
+
+                        idOtroJugador = (jugador1 == idJugador) ? jugador2 : jugador1;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al obtener la ID del otro jugador: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return idOtroJugador;
     }
 
 }

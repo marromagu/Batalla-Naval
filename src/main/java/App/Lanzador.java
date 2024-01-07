@@ -6,7 +6,6 @@ package App;
 
 import Servidor.ConexionServidor;
 import java.net.Socket;
-import Datos.ConexionConBDD;
 
 /**
  *
