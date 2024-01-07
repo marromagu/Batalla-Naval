@@ -213,4 +213,39 @@ public class ConexionConBDD implements Serializable {
         return listaPartidasNoTerminadasSinTurno;
     }
 
+    public ArrayList<String> obtenerDisparosDePartida(int idPartida) {
+        ArrayList<String> listaDisparos = new ArrayList<>();
+
+        try (Connection conexion = getConexion()) {
+            String sql = "SELECT * FROM Disparos WHERE id_partida = ?";
+
+            try (PreparedStatement statement = conexion.prepareStatement(sql)) {
+                // Establecer el parámetro idPartida en la consulta preparada
+                statement.setInt(1, idPartida);
+
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    while (resultSet.next()) {
+                        int idDisparo = resultSet.getInt("id_disparo");
+                        int jugadorId = resultSet.getInt("jugador_id");
+                        int posicionX = resultSet.getInt("posicion_x");
+                        int posicionY = resultSet.getInt("posicion_y");
+                        String resultado = resultSet.getString("resultado");
+
+                        // Crear cadena representativa del disparo
+                        String representacionDisparo = String.format("ID Disparo: %d, Jugador (ID): %d, Posición: (%d, %d), Resultado: %s",
+                                idDisparo, jugadorId, posicionX, posicionY, resultado);
+
+                        // Agregar la representación al ArrayList
+                        listaDisparos.add(representacionDisparo);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al obtener los disparos de la partida: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return listaDisparos;
+    }
+
 }

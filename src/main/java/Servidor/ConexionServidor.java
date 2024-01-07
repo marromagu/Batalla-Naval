@@ -60,6 +60,10 @@ public class ConexionServidor extends Thread {
                 cerrarConexiones();
                 System.out.println("--> Conexion cerrada por usuario o contraseña erroneos.");
             }
+            while (true) {                
+                 enviarRepeticion();
+            }
+           
         } catch (IOException e) {
             System.out.println("--> Error en run: " + e.getMessage());
         }
@@ -88,10 +92,20 @@ public class ConexionServidor extends Thread {
         } catch (IOException ex) {
             Logger.getLogger(ConexionServidor.class.getName()).log(Level.SEVERE, null, ex);
             System.out.println("--> Error en Login: " + ex.getMessage());
-        } finally {
-            cerrarConexiones();
-        }
+        } 
         return contraseñaCorrecta;
+    }
+
+    public void enviarRepeticion() {
+        int id_partida;
+        try {
+            id_partida = flujo_entrada.readInt();
+            enviarObjeto(misDatos.repeticion(id_partida));
+        } catch (IOException ex) {
+            Logger.getLogger(ConexionServidor.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("--> Error en enviar Repeticion: " + ex.getMessage());
+        }
+
     }
 
     // Método para enviar un objeto por socket

@@ -33,6 +33,10 @@ public class DatosJugador implements Serializable {
         this.listaPartidasSuTurno = miBDD.obtenerPartidasNoTerminadasSinTurno(idJugador);
     }
 
+    public ArrayList<String> repeticion(int id_partida) {
+        return miBDD.obtenerDisparosDePartida(id_partida);
+    }
+
     // Método para obtener la Id del jugador
     public int obtenerIdJugador() {
         return miBDD.consultarIDJugador(usuario, contraseña);
