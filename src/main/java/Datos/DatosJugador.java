@@ -61,6 +61,7 @@ public class DatosJugador implements Serializable {
     }
 
     public HashMap<Integer, String> getListaPartidaTermindas() {
+        setListaPartidaTermindas(miBDD.obtenerPartidasTerminadasPorJugador(idJugador));
         return listaPartidaTermindas;
     }
 

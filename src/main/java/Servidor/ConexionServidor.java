@@ -8,6 +8,8 @@ package Servidor;
 import Datos.DatosJugador;
 import java.io.*;
 import java.net.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -23,6 +25,9 @@ public class ConexionServidor extends Thread {
     private DataOutputStream flujo_salida;
     private ObjectOutputStream objeto_salida;
     private DatosJugador misDatos = null;
+    private HashMap<Integer, String> listaUsuarios = new HashMap<>();
+
+    ;
 
     /**
      *
@@ -37,7 +42,6 @@ public class ConexionServidor extends Thread {
         try {
             ServerSocket skServidor = new ServerSocket(Puerto); //Inicializamos el servidor en el puerto
             System.out.println("-> Puerto: " + Puerto + " en escucha.");
-
             while (true) {
                 Socket skCliente = skServidor.accept(); //Se conecta un Cliente.
                 System.out.println("+ Cliente conectado.");
@@ -56,8 +60,7 @@ public class ConexionServidor extends Thread {
             objeto_salida = new ObjectOutputStream(skCliente.getOutputStream());
 
             if (!login()) {
-                cerrarConexiones();
-                System.out.println("--> Conexion cerrada por usuario o contraseña erroneos.");
+                System.out.println("--> Usuario o contraseña erroneos.");
             }
             while (true) {
                 int op = flujo_entrada.readInt();
@@ -77,6 +80,7 @@ public class ConexionServidor extends Thread {
 
         } catch (IOException e) {
             System.out.println("--> Error en run: " + e.getMessage());
+            cerrarConexiones();
         }
     }
 
@@ -95,16 +99,26 @@ public class ConexionServidor extends Thread {
             System.out.println("Usuario: " + usuario + " Contraseña: " + contraseña + " - " + (contraseñaCorrecta ? "Correcta" : "Incorrecta"));
 
             if (contraseñaCorrecta) {
-                System.out.println("¡Correcto!");
+                System.out.println("--> Correcto!");
                 // Mandamos el Objeto de los datos del Cliente
+                
+                listaUsuarios.put(misDatos.getIdJugador(), usuario);
+                mostrarListaUsuarios();
                 enviarObjeto(misDatos);
-                System.out.println(misDatos.toString());//Para verificar que todo este bien.
             }
+
         } catch (IOException ex) {
             Logger.getLogger(ConexionServidor.class.getName()).log(Level.SEVERE, null, ex);
             System.out.println("--> Error en Login: " + ex.getMessage());
         }
         return contraseñaCorrecta;
+    }
+
+    public void mostrarListaUsuarios() {
+        for (Map.Entry<Integer, String> entry : listaUsuarios.entrySet()) {
+            System.out.println(entry.getValue());
+        }
+        enviarObjeto(listaUsuarios);
     }
 
     public void enviarRepeticion() {
@@ -124,7 +138,7 @@ public class ConexionServidor extends Thread {
             int id_jugador = flujo_entrada.readInt();
             int id_partida = flujo_entrada.readInt();
             flujo_salida.writeBoolean(misDatos.rendirse(id_jugador, id_partida));
-            System.out.println("Rendicion recibida con éxito.");
+            System.out.println("--> Rendicion recibida con éxito.");
         } catch (IOException ex) {
             Logger.getLogger(ConexionServidor.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -136,7 +150,6 @@ public class ConexionServidor extends Thread {
         try {
             objeto_salida.writeObject(objeto);
             objeto_salida.flush();
-            System.out.println("Objeto enviado con éxito.");
         } catch (IOException e) {
             System.err.println("Error al enviar el objeto por el socket: " + e.getMessage());
         }
@@ -156,6 +169,7 @@ public class ConexionServidor extends Thread {
 
     private void enviarListaTerminada() {
         enviarObjeto(misDatos.getListaPartidaTermindas());
+        System.out.println(misDatos.getListaPartidaTermindas());
         System.out.println("--> Enviar Lista Terminada");
 
     }
