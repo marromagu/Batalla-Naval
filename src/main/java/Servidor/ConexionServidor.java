@@ -42,7 +42,7 @@ public class ConexionServidor extends Thread {
         try {
             ServerSocket skServidor = new ServerSocket(Puerto); // Inicializamos el servidor en el puerto
             System.out.println("-> Puerto: " + Puerto + " en escucha.");
-            listaUsuarios = new HashMap<>(); // Mueve la inicialización aquí fuera del bucle
+           // listaUsuarios = new HashMap<>(); // Mueve la inicialización aquí fuera del bucle
             while (true) {
                 Socket skCliente = skServidor.accept(); // Se conecta un Cliente.
                 System.out.println("+ Cliente conectado.");
@@ -74,6 +74,8 @@ public class ConexionServidor extends Thread {
                         recibirCoordenadas();
                     case 4 ->
                         enviarListaTerminada();
+                    case 5 ->
+                        crearPartida();
                     default ->
                         throw new AssertionError();
                 }
@@ -94,7 +96,7 @@ public class ConexionServidor extends Thread {
 
             // Creamos un objeto DatosJugador con los datos proporcionados
             misDatos = new DatosJugador(usuario, contraseña);
-
+            listaUsuarios = misDatos.tablaUsuarios();
             // Validamos la contraseña y mostramos un mensaje por consola
             contraseñaCorrecta = misDatos.validarContraseña();
             System.out.println("Usuario: " + usuario + " Contraseña: " + contraseña + " - " + (contraseñaCorrecta ? "Correcta" : "Incorrecta"));
@@ -102,8 +104,6 @@ public class ConexionServidor extends Thread {
             if (contraseñaCorrecta) {
                 System.out.println("--> Correcto!");
                 // Mandamos el Objeto de los datos del Cliente
-
-                listaUsuarios.put(misDatos.getIdJugador(), usuario);
                 mostrarListaUsuarios();
                 enviarObjeto(misDatos);
             }
@@ -168,11 +168,20 @@ public class ConexionServidor extends Thread {
         }
     }
 
+    private void crearPartida() {
+        try {
+            int id_jugador1 = flujo_entrada.readInt();
+            int id_jugador2 = flujo_entrada.readInt();
+            flujo_salida.writeInt(misDatos.crearPartida(id_jugador1, id_jugador2));
+            System.out.println("Partida creada");
+        } catch (IOException ex) {
+            Logger.getLogger(ConexionServidor.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("--> Error al crear Partida: " + ex.getMessage());
+        }
+    }
+
     private void enviarListaTerminada() {
         enviarObjeto(misDatos.getListaPartidaTermindas());
-        System.out.println(misDatos.getListaPartidaTermindas());
-        System.out.println("--> Enviar Lista Terminada");
-
     }
 
     private void cerrarConexiones() {

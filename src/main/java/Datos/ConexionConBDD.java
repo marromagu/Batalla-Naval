@@ -50,14 +50,14 @@ public class ConexionConBDD implements Serializable {
     public int consultarContraseña(String nombreUsuario) {
         int contraseña = 0;
 
-        try ( Connection conexion = getConexion()) {
+        try (Connection conexion = getConexion()) {
             String sql = "SELECT contraseña FROM Jugadores WHERE nombre = ?";
 
-            try ( PreparedStatement statement = conexion.prepareStatement(sql)) {
+            try (PreparedStatement statement = conexion.prepareStatement(sql)) {
                 // Establecer el parámetro nombreUsuario en la consulta preparada
                 statement.setString(1, nombreUsuario);
 
-                try ( ResultSet resultSet = statement.executeQuery()) {
+                try (ResultSet resultSet = statement.executeQuery()) {
                     if (resultSet.next()) {
                         contraseña = resultSet.getInt("contraseña");
                     } else {
@@ -76,15 +76,15 @@ public class ConexionConBDD implements Serializable {
     public int consultarIDJugador(String nombreUsuario, int contraseña) {
         int idJugador = -1;
 
-        try ( Connection conexion = getConexion()) {
+        try (Connection conexion = getConexion()) {
             String sql = "SELECT id_jugador FROM Jugadores WHERE nombre = ? AND contraseña = ?";
 
-            try ( PreparedStatement statement = conexion.prepareStatement(sql)) {
+            try (PreparedStatement statement = conexion.prepareStatement(sql)) {
                 // Establecer los parámetros en la consulta preparada
                 statement.setString(1, nombreUsuario);
                 statement.setInt(2, contraseña);
 
-                try ( ResultSet resultSet = statement.executeQuery()) {
+                try (ResultSet resultSet = statement.executeQuery()) {
                     if (resultSet.next()) {
                         idJugador = resultSet.getInt("id_jugador");
                     } else {
@@ -103,16 +103,16 @@ public class ConexionConBDD implements Serializable {
     public HashMap<Integer, String> obtenerPartidasTerminadasPorJugador(int idJugador) {
         HashMap<Integer, String> mapaPartidasTerminadas = new HashMap<>();
 
-        try ( Connection conexion = getConexion()) {
+        try (Connection conexion = getConexion()) {
             String sql = "SELECT id_partida, estado, ganador, ultimo_turno FROM Partidas "
                     + "WHERE (jugador_1 = ? OR jugador_2 = ?) AND estado = 'X'";
 
-            try ( PreparedStatement statement = conexion.prepareStatement(sql)) {
+            try (PreparedStatement statement = conexion.prepareStatement(sql)) {
                 // Establecer el parámetro idJugador en la consulta preparada
                 statement.setInt(1, idJugador);
                 statement.setInt(2, idJugador);
 
-                try ( ResultSet resultSet = statement.executeQuery()) {
+                try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {
                         int idPartida = resultSet.getInt("id_partida");
                         String estado = resultSet.getString("estado");
@@ -138,18 +138,18 @@ public class ConexionConBDD implements Serializable {
     public HashMap<Integer, String> obtenerPartidasNoTerminadasConTurno(int idJugador) {
         HashMap<Integer, String> mapaPartidasNoTerminadasConTurno = new HashMap<>();
 
-        try ( Connection conexion = getConexion()) {
+        try (Connection conexion = getConexion()) {
             String sql = "SELECT id_partida, estado, ganador, ultimo_turno "
                     + "FROM Partidas "
                     + "WHERE (jugador_1 = ? OR jugador_2 = ?) AND estado = 'O' AND ultimo_turno = ?";
 
-            try ( PreparedStatement statement = conexion.prepareStatement(sql)) {
+            try (PreparedStatement statement = conexion.prepareStatement(sql)) {
                 // Establecer los parámetros en la consulta preparada
                 statement.setInt(1, idJugador);
                 statement.setInt(2, idJugador);
                 statement.setInt(3, idJugador);
 
-                try ( ResultSet resultSet = statement.executeQuery()) {
+                try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {
                         int idPartida = resultSet.getInt("id_partida");
                         String estado = resultSet.getString("estado");
@@ -175,18 +175,18 @@ public class ConexionConBDD implements Serializable {
     public HashMap<Integer, String> obtenerPartidasNoTerminadasSinTurno(int idJugador) {
         HashMap<Integer, String> mapaPartidasNoTerminadasSinTurno = new HashMap<>();
 
-        try ( Connection conexion = getConexion()) {
+        try (Connection conexion = getConexion()) {
             String sql = "SELECT id_partida, estado, ganador, ultimo_turno "
                     + "FROM Partidas "
                     + "WHERE (jugador_1 = ? OR jugador_2 = ?) AND estado = 'O' AND ultimo_turno <> ?";
 
-            try ( PreparedStatement statement = conexion.prepareStatement(sql)) {
+            try (PreparedStatement statement = conexion.prepareStatement(sql)) {
                 // Establecer los parámetros en la consulta preparada
                 statement.setInt(1, idJugador);
                 statement.setInt(2, idJugador);
                 statement.setInt(3, idJugador);
 
-                try ( ResultSet resultSet = statement.executeQuery()) {
+                try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {
                         int idPartida = resultSet.getInt("id_partida");
                         String estado = resultSet.getString("estado");
@@ -212,14 +212,14 @@ public class ConexionConBDD implements Serializable {
     public ArrayList<String> obtenerDisparosDePartida(int idPartida) {
         ArrayList<String> listaDisparos = new ArrayList<>();
 
-        try ( Connection conexion = getConexion()) {
+        try (Connection conexion = getConexion()) {
             String sql = "SELECT * FROM Disparos WHERE id_partida = ?";
 
-            try ( PreparedStatement statement = conexion.prepareStatement(sql)) {
+            try (PreparedStatement statement = conexion.prepareStatement(sql)) {
                 // Establecer el parámetro idPartida en la consulta preparada
                 statement.setInt(1, idPartida);
 
-                try ( ResultSet resultSet = statement.executeQuery()) {
+                try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {
                         int idDisparo = resultSet.getInt("id_disparo");
                         int jugadorId = resultSet.getInt("jugador_id");
@@ -244,12 +244,12 @@ public class ConexionConBDD implements Serializable {
     }
 
     public boolean rendirseEnPartida(int idJugador, int idPartida) {
-        try ( Connection conexion = getConexion()) {
+        try (Connection conexion = getConexion()) {
             String sql = "UPDATE Partidas "
                     + "SET estado = 'X', ganador = ?, ultimo_turno = ? "
                     + "WHERE id_partida = ? AND estado = 'O' AND ultimo_turno <> ?";
 
-            try ( PreparedStatement statement = conexion.prepareStatement(sql)) {
+            try (PreparedStatement statement = conexion.prepareStatement(sql)) {
                 // Establecer los parámetros en la consulta preparada
                 statement.setInt(1, obtenerOtroJugador(idPartida, idJugador)); // Obtener la ID del otro jugador
                 statement.setInt(2, idJugador); // Establecer al jugador que se rinde como último turno
@@ -276,13 +276,13 @@ public class ConexionConBDD implements Serializable {
     private int obtenerOtroJugador(int idPartida, int idJugador) {
         int idOtroJugador = -1;
 
-        try ( Connection conexion = getConexion()) {
+        try (Connection conexion = getConexion()) {
             String sql = "SELECT jugador_1, jugador_2 FROM Partidas WHERE id_partida = ?";
 
-            try ( PreparedStatement statement = conexion.prepareStatement(sql)) {
+            try (PreparedStatement statement = conexion.prepareStatement(sql)) {
                 statement.setInt(1, idPartida);
 
-                try ( var resultSet = statement.executeQuery()) {
+                try (var resultSet = statement.executeQuery()) {
                     if (resultSet.next()) {
                         int jugador1 = resultSet.getInt("jugador_1");
                         int jugador2 = resultSet.getInt("jugador_2");
@@ -301,7 +301,7 @@ public class ConexionConBDD implements Serializable {
     public boolean hayBarcoEnemigoEnCoordenada(int idJugador, int idPartida, int posicionX, int posicionY) {
         boolean hayBarcoEnemigo = false;
 
-        try ( Connection conexion = getConexion()) {
+        try (Connection conexion = getConexion()) {
             String sql = "SELECT B.id_barco "
                     + "FROM Barcos B "
                     + "JOIN Disparos D ON B.id_partida = D.id_partida "
@@ -313,13 +313,13 @@ public class ConexionConBDD implements Serializable {
                     + "  AND B.posicion_x = ? "
                     + "  AND B.posicion_y = ?";
 
-            try ( PreparedStatement statement = conexion.prepareStatement(sql)) {
+            try (PreparedStatement statement = conexion.prepareStatement(sql)) {
                 statement.setInt(1, idPartida);
                 statement.setInt(2, idJugador);
                 statement.setInt(3, posicionX);
                 statement.setInt(4, posicionY);
 
-                try ( ResultSet resultSet = statement.executeQuery()) {
+                try (ResultSet resultSet = statement.executeQuery()) {
                     hayBarcoEnemigo = resultSet.next(); // Devuelve true si hay al menos una fila en el resultado
                 }
             }
@@ -331,7 +331,7 @@ public class ConexionConBDD implements Serializable {
     }
 
     public void registrarDisparo(int idPartida, int idJugador, int posicionX, int posicionY) {
-        try ( Connection conexion = getConexion()) {
+        try (Connection conexion = getConexion()) {
             boolean hayBarcoEnemigo = hayBarcoEnemigoEnCoordenada(idJugador, idPartida, posicionX, posicionY);
 
             // Determinar el resultado del disparo (Tocado o Agua)
@@ -339,7 +339,7 @@ public class ConexionConBDD implements Serializable {
 
             // Insertar un nuevo disparo en la tabla Disparos
             String insertDisparoSql = "INSERT INTO Disparos (id_partida, jugador_id, posicion_x, posicion_y, resultado) VALUES (?, ?, ?, ?, ?)";
-            try ( PreparedStatement insertDisparoStatement = conexion.prepareStatement(insertDisparoSql)) {
+            try (PreparedStatement insertDisparoStatement = conexion.prepareStatement(insertDisparoSql)) {
                 insertDisparoStatement.setInt(1, idPartida);
                 insertDisparoStatement.setInt(2, idJugador);
                 insertDisparoStatement.setInt(3, posicionX);
@@ -351,7 +351,7 @@ public class ConexionConBDD implements Serializable {
 
             // Actualizar la tabla Partidas con el último turno
             String updatePartidaSql = "UPDATE Partidas SET ultimo_turno = ? WHERE id_partida = ?";
-            try ( PreparedStatement updatePartidaStatement = conexion.prepareStatement(updatePartidaSql)) {
+            try (PreparedStatement updatePartidaStatement = conexion.prepareStatement(updatePartidaSql)) {
                 int idOtroJugador = obtenerOtroJugador(idPartida, idJugador);
                 updatePartidaStatement.setInt(1, idOtroJugador);
                 updatePartidaStatement.setInt(2, idPartida);
@@ -362,6 +362,68 @@ public class ConexionConBDD implements Serializable {
         } catch (SQLException e) {
             System.out.println("Error al registrar el disparo: " + e.getMessage());
         }
+    }
+
+    public int crearNuevaPartida(int idJugador1, int idJugador2) {
+        int idNuevaPartida = -1;
+
+        try (Connection conexion = getConexion()) {
+            String sql = "INSERT INTO Partidas (jugador_1, jugador_2, estado, ultimo_turno) VALUES (?, ?, 'O', ?)";
+
+            try (PreparedStatement statement = conexion.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+                statement.setInt(1, idJugador1);
+                statement.setInt(2, idJugador2);
+                statement.setInt(3, idJugador1);  // Inicializar con la id del primer jugador como último turno
+
+                int filasAfectadas = statement.executeUpdate();
+
+                if (filasAfectadas > 0) {
+                    // Obtener la ID generada para la nueva partida
+                    ResultSet generatedKeys = statement.getGeneratedKeys();
+                    if (generatedKeys.next()) {
+                        idNuevaPartida = generatedKeys.getInt(1);
+                        System.out.println("Se creó una nueva partida con ID: " + idNuevaPartida);
+                    } else {
+                        System.out.println("No se pudo obtener la ID de la nueva partida.");
+                    }
+                } else {
+                    System.out.println("No se pudo crear la nueva partida.");
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al crear la nueva partida: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return idNuevaPartida;
+    }
+
+    public HashMap<Integer, String> obtenerUsuarios() {
+        HashMap<Integer, String> mapaUsuarios = new HashMap<>();
+
+        try (Connection conexion = getConexion()) {
+            String sql = "SELECT id_jugador, nombre FROM Jugadores";
+
+            try (PreparedStatement statement = conexion.prepareStatement(sql)) {
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    while (resultSet.next()) {
+                        int idJugador = resultSet.getInt("id_jugador");
+                        String nombre = resultSet.getString("nombre");
+
+                        // Crear cadena representativa del usuario
+                        String representacionUsuario = String.format("ID: %d, Nombre: %s", idJugador, nombre);
+
+                        // Agregar la representación al HashMap
+                        mapaUsuarios.put(idJugador, representacionUsuario);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al obtener la lista de usuarios: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return mapaUsuarios;
     }
 
 }

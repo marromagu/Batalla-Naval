@@ -30,9 +30,18 @@ public class DatosJugador implements Serializable {
         this.listaPartidasSuTurno = miBDD.obtenerPartidasNoTerminadasSinTurno(idJugador);
     }
 
-    public void disparar(int idPartida, int idJugador, int posicionX, int posicionY){
+    public HashMap<Integer, String> tablaUsuarios() {
+        return miBDD.obtenerUsuarios();
+    }
+
+    public int crearPartida(int idJ1, int idJ2) {
+        return miBDD.crearNuevaPartida(idJ1, idJ2);
+    }
+
+    public void disparar(int idPartida, int idJugador, int posicionX, int posicionY) {
         miBDD.registrarDisparo(idPartida, idJugador, posicionX, posicionY);
     }
+
     public boolean rendirse(int idJugador, int id_partida) {
         return miBDD.rendirseEnPartida(idJugador, id_partida);
     }
