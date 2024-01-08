@@ -25,7 +25,7 @@ public class ConexionServidor extends Thread {
     private DataOutputStream flujo_salida;
     private ObjectOutputStream objeto_salida;
     private DatosJugador misDatos = null;
-    private HashMap<Integer, String> listaUsuarios = new HashMap<>();
+    private HashMap<Integer, String> listaUsuarios;
 
     ;
 
@@ -40,12 +40,13 @@ public class ConexionServidor extends Thread {
 
     public void EstablecerConexcion() {
         try {
-            ServerSocket skServidor = new ServerSocket(Puerto); //Inicializamos el servidor en el puerto
+            ServerSocket skServidor = new ServerSocket(Puerto); // Inicializamos el servidor en el puerto
             System.out.println("-> Puerto: " + Puerto + " en escucha.");
+            listaUsuarios = new HashMap<>(); // Mueve la inicialización aquí fuera del bucle
             while (true) {
-                Socket skCliente = skServidor.accept(); //Se conecta un Cliente.
+                Socket skCliente = skServidor.accept(); // Se conecta un Cliente.
                 System.out.println("+ Cliente conectado.");
-                new ConexionServidor(skCliente).start(); //Atendemos al Cliente con un Thread
+                new ConexionServidor(skCliente).start(); // Atendemos al Cliente con un Thread
             }
         } catch (IOException e) {
             System.out.println("-> Ups, ha ocurrido algo inesperado: " + e.getMessage());
@@ -101,7 +102,7 @@ public class ConexionServidor extends Thread {
             if (contraseñaCorrecta) {
                 System.out.println("--> Correcto!");
                 // Mandamos el Objeto de los datos del Cliente
-                
+
                 listaUsuarios.put(misDatos.getIdJugador(), usuario);
                 mostrarListaUsuarios();
                 enviarObjeto(misDatos);
