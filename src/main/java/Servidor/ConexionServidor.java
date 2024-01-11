@@ -26,6 +26,7 @@ public class ConexionServidor extends Thread {
     private ObjectOutputStream objeto_salida;
     private DatosJugador misDatos = null;
     private HashMap<Integer, String> listaUsuarios;
+    private HashMap<Integer, String> usuariosConectados;
 
     ;
 
@@ -36,13 +37,14 @@ public class ConexionServidor extends Thread {
      */
     public ConexionServidor(Socket skCliente) {
         this.skCliente = skCliente;
+        usuariosConectados = new HashMap<>();
     }
 
     public void EstablecerConexcion() {
         try {
             ServerSocket skServidor = new ServerSocket(Puerto); // Inicializamos el servidor en el puerto
             System.out.println("-> Puerto: " + Puerto + " en escucha.");
-           // listaUsuarios = new HashMap<>(); // Mueve la inicialización aquí fuera del bucle
+            // listaUsuarios = new HashMap<>(); // Mueve la inicialización aquí fuera del bucle
             while (true) {
                 Socket skCliente = skServidor.accept(); // Se conecta un Cliente.
                 System.out.println("+ Cliente conectado.");
@@ -202,5 +204,25 @@ public class ConexionServidor extends Thread {
         } catch (IOException e) {
             System.out.println("--> Error al cerrar conexiones: " + e.getMessage());
         }
+    }
+
+    public void agregarUsuario(int id, String nombre) {
+        if (!usuariosConectados.containsKey(id)) {
+            usuariosConectados.put(id, nombre);
+        } else {
+            System.out.println("--> Error: Usuario ya conectado.");
+        }
+    }
+
+    public void eliminarUsuario(int id) {
+        if (usuariosConectados.containsKey(id)) {
+            usuariosConectados.remove(id);
+        } else {
+            System.out.println("--> Error: Usuario no encontrado.");
+        }
+    }
+
+    public String getNombreUsuario(int id) {
+        return usuariosConectados.get(id);
     }
 }

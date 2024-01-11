@@ -101,39 +101,47 @@ public class ConexionConBDD implements Serializable {
     }
 
     public HashMap<Integer, String> obtenerPartidasTerminadasPorJugador(int idJugador) {
-        HashMap<Integer, String> mapaPartidasTerminadas = new HashMap<>();
+    HashMap<Integer, String> mapaPartidasTerminadas = new HashMap<>();
 
-        try (Connection conexion = getConexion()) {
-            String sql = "SELECT id_partida, estado, ganador, ultimo_turno FROM Partidas "
-                    + "WHERE (jugador_1 = ? OR jugador_2 = ?) AND estado = 'X'";
+    try (Connection conexion = getConexion()) {
+        String sql = "SELECT id_partida, jugador_1, jugador_2, ganador, ultimo_turno FROM Partidas "
+                + "WHERE (jugador_1 = ? OR jugador_2 = ?) AND estado = 'X'";
 
-            try (PreparedStatement statement = conexion.prepareStatement(sql)) {
-                // Establecer el parámetro idJugador en la consulta preparada
-                statement.setInt(1, idJugador);
-                statement.setInt(2, idJugador);
+        try (PreparedStatement statement = conexion.prepareStatement(sql)) {
+            // Establecer el parámetro idJugador en la consulta preparada
+            statement.setInt(1, idJugador);
+            statement.setInt(2, idJugador);
 
-                try (ResultSet resultSet = statement.executeQuery()) {
-                    while (resultSet.next()) {
-                        int idPartida = resultSet.getInt("id_partida");
-                        String estado = resultSet.getString("estado");
-                        int ganador = resultSet.getInt("ganador");
-                        int ultimoTurno = resultSet.getInt("ultimo_turno");
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    int idPartida = resultSet.getInt("id_partida");
+                    int jugador1ID = resultSet.getInt("jugador_1");
+                    int jugador2ID = resultSet.getInt("jugador_2");
+                    int ganadorID = resultSet.getInt("ganador");
+                    int ultimoTurnoID = resultSet.getInt("ultimo_turno");
 
-                        // Crear cadena representativa de la partida
-                        String representacionPartida = String.format("ID Partida: %d, Estado: %s, Ganador (ID): %d, Último Turno (ID): %d",
-                                idPartida, estado, ganador, ultimoTurno);
+                    // Obtener los nombres de los jugadores utilizando el método creado anteriormente
+                    String nombreJugador1 = obtenerNombreJugadorPorID(jugador1ID);
+                    String nombreJugador2 = obtenerNombreJugadorPorID(jugador2ID);
+                    String nombreGanador = obtenerNombreJugadorPorID(ganadorID);
+                    String nombreUltimoTurno = obtenerNombreJugadorPorID(ultimoTurnoID);
 
-                        // Agregar la representación al HashMap
-                        mapaPartidasTerminadas.put(idPartida, representacionPartida);
-                    }
+                    // Crear cadena representativa de la partida con nombres de jugadores
+                    String representacionPartida = String.format("%d;%s;%s;%s;%s",
+                            idPartida, nombreJugador1, nombreJugador2, nombreGanador, nombreUltimoTurno);
+
+                    // Agregar la representación al HashMap
+                    mapaPartidasTerminadas.put(idPartida, representacionPartida);
                 }
             }
-        } catch (SQLException e) {
-            System.out.println("Error al obtener las partidas terminadas: " + e.getMessage());
         }
-
-        return mapaPartidasTerminadas;
+    } catch (SQLException e) {
+        System.out.println("Error al obtener las partidas terminadas: " + e.getMessage());
     }
+
+    return mapaPartidasTerminadas;
+}
+
 
     public HashMap<Integer, String> obtenerPartidasNoTerminadasConTurno(int idJugador) {
         HashMap<Integer, String> mapaPartidasNoTerminadasConTurno = new HashMap<>();
@@ -411,10 +419,10 @@ public class ConexionConBDD implements Serializable {
                         String nombre = resultSet.getString("nombre");
 
                         // Crear cadena representativa del usuario
-                        String representacionUsuario = String.format("ID: %d, Nombre: %s", idJugador, nombre);
+                        //String representacionUsuario = String.format("%d %s", idJugador, nombre);
 
                         // Agregar la representación al HashMap
-                        mapaUsuarios.put(idJugador, representacionUsuario);
+                        mapaUsuarios.put(idJugador, nombre);
                     }
                 }
             }
@@ -424,6 +432,32 @@ public class ConexionConBDD implements Serializable {
         }
 
         return mapaUsuarios;
+    }
+
+    public String obtenerNombreJugadorPorID(int idJugador) {
+        String nombreJugador = null;
+
+        try (Connection conexion = getConexion()) {
+            String sql = "SELECT nombre FROM Jugadores WHERE id_jugador = ?";
+
+            try (PreparedStatement statement = conexion.prepareStatement(sql)) {
+                // Establecer el parámetro idJugador en la consulta preparada
+                statement.setInt(1, idJugador);
+
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    if (resultSet.next()) {
+                        nombreJugador = resultSet.getString("nombre");
+                    } else {
+                        // No se encontró un jugador con la ID proporcionada
+                        System.out.println("No se encontró un jugador con la ID: " + idJugador);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al obtener el nombre del jugador: " + e.getMessage());
+        }
+
+        return nombreJugador;
     }
 
 }
