@@ -35,24 +35,10 @@ public class ConexionServidor extends Thread {
      * @param skCliente es un Objeto Socket que se proporciona al constructor.
      * Cada instancia del servidor tendra su propio socket.
      */
-    public ConexionServidor(Socket skCliente) {
+    public ConexionServidor(Socket skCliente,HashMap<Integer, String> usuariosC) {
         this.skCliente = skCliente;
-        usuariosConectados = new HashMap<>();
-    }
+        this.usuariosConectados = usuariosC;
 
-    public void EstablecerConexcion() {
-        try {
-            ServerSocket skServidor = new ServerSocket(Puerto); // Inicializamos el servidor en el puerto
-            System.out.println("-> Puerto: " + Puerto + " en escucha.");
-            // listaUsuarios = new HashMap<>(); // Mueve la inicialización aquí fuera del bucle
-            while (true) {
-                Socket skCliente = skServidor.accept(); // Se conecta un Cliente.
-                System.out.println("+ Cliente conectado.");
-                new ConexionServidor(skCliente).start(); // Atendemos al Cliente con un Thread
-            }
-        } catch (IOException e) {
-            System.out.println("-> Ups, ha ocurrido algo inesperado: " + e.getMessage());
-        }
     }
 
     @Override
@@ -102,11 +88,13 @@ public class ConexionServidor extends Thread {
             // Validamos la contraseña y mostramos un mensaje por consola
             contraseñaCorrecta = misDatos.validarContraseña();
             System.out.println("Usuario: " + usuario + " Contraseña: " + contraseña + " - " + (contraseñaCorrecta ? "Correcta" : "Incorrecta"));
-
+            
             if (contraseñaCorrecta) {
                 System.out.println("--> Correcto!");
                 // Mandamos el Objeto de los datos del Cliente
-                mostrarListaUsuarios();
+                enviarObjeto(listaUsuarios);
+                agregarUsuario(misDatos.obtenerIdJugador(), usuario);
+                System.out.println(misDatos.obtenerIdJugador() + " " + usuario);
                 enviarObjeto(misDatos);
             }
 
@@ -206,11 +194,13 @@ public class ConexionServidor extends Thread {
         }
     }
 
-    public void agregarUsuario(int id, String nombre) {
+    public boolean agregarUsuario(int id, String nombre) {
         if (!usuariosConectados.containsKey(id)) {
             usuariosConectados.put(id, nombre);
+            return true;
         } else {
             System.out.println("--> Error: Usuario ya conectado.");
+             return false;
         }
     }
 

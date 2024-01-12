@@ -4,7 +4,7 @@
  */
 package App;
 
-import Servidor.ConexionServidor;
+import Servidor.EstablecerConexionServidor;
 import java.net.Socket;
 
 /**
@@ -18,7 +18,7 @@ public class Lanzador {
      */
     public static void main(String[] args) {
         Socket sk = new Socket();
-        ConexionServidor server = new ConexionServidor(sk);
+        EstablecerConexionServidor server = new EstablecerConexionServidor(sk);
         server.EstablecerConexcion();
     }
 
