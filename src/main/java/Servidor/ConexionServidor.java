@@ -83,7 +83,7 @@ public class ConexionServidor extends Thread {
     }
 
     private boolean login() {
-        boolean contraseñaCorrecta = false;
+        boolean contraseñaYusuarioOnline = false;
         try {
             // Recogemos los datos de usuario y contraseña
             String usuario = flujo_entrada.readUTF();
@@ -93,29 +93,31 @@ public class ConexionServidor extends Thread {
             misDatos = new DatosJugador(usuario, contraseña);
             listaUsuarios = misDatos.tablaUsuarios();
             // Validamos la contraseña y mostramos un mensaje por consola
-            contraseñaCorrecta = misDatos.validarContraseña();
-            System.out.println("-- Usuario: " + usuario + " Contraseña: " + contraseña + " - " + (contraseñaCorrecta ? "Correcta" : "Incorrecta"));
+            contraseñaYusuarioOnline = misDatos.validarContraseña();
+            System.out.println("-- Usuario: " + usuario + " Contraseña: " + contraseña + " - " + (contraseñaYusuarioOnline ? "Correcta" : "Incorrecta"));
 
-            if (contraseñaCorrecta) {
+            //Enviamos confirmacion de contraseña
+            enviarBoolean(contraseñaYusuarioOnline);
+            if (contraseñaYusuarioOnline) {
                 //Añadimos el usuario conectado a la lista y verificamos que no este conectado ya
-                contraseñaCorrecta = agregarUsuario(misDatos.obtenerIdJugador(), usuario);
-                System.out.println("-- " + misDatos.obtenerIdJugador() + ", " + usuario);
-                if (contraseñaCorrecta) {
-                    //Enviamos confirmacion
-                    enviarBoolean(contraseñaCorrecta);
+                contraseñaYusuarioOnline = agregarUsuario(misDatos.obtenerIdJugador(), usuario);
+                System.out.println("--> " + misDatos.obtenerIdJugador() + ", " + usuario);
+                //Enviamos confirmacion de usuario conectado
+                enviarBoolean(contraseñaYusuarioOnline);
+                if (contraseñaYusuarioOnline) {
                     System.out.println("--> Correcto!");
                     // Mandamos la lista de los usuarios
                     enviarObjeto(listaUsuarios);
-
                     //Mandamos el Objeto con los datos necesarios al Jugador
                     enviarObjeto(misDatos);
                 }
             }
+
         } catch (IOException ex) {
             Logger.getLogger(ConexionServidor.class.getName()).log(Level.SEVERE, null, ex);
             System.out.println("--> Error en Login: " + ex.getMessage());
         }
-        return contraseñaCorrecta;
+        return contraseñaYusuarioOnline;
     }
 
     public void enviarRepeticion() {
@@ -180,6 +182,7 @@ public class ConexionServidor extends Thread {
 
     // Método para enviar un Booleano por socket
     private void enviarBoolean(boolean valor) {
+        System.out.println(valor ? "---> Verdadero" : "---> Falso");
         try {
             flujo_salida.writeBoolean(valor);
             flujo_salida.flush();

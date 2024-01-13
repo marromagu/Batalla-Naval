@@ -79,6 +79,7 @@ public class DatosJugador implements Serializable {
     }
 
     public HashMap<Integer, String> getListaPartidasMiTurno() {
+        setListaPartidasMiTurno(miBDD.obtenerPartidasNoTerminadasConTurno(idJugador));
         return listaPartidasMiTurno;
     }
 
@@ -87,6 +88,7 @@ public class DatosJugador implements Serializable {
     }
 
     public HashMap<Integer, String> getListaPartidasSuTurno() {
+        setListaPartidasSuTurno(miBDD.obtenerPartidasNoTerminadasSinTurno(idJugador));
         return listaPartidasSuTurno;
     }
 
