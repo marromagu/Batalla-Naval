@@ -50,20 +50,24 @@ class Tablero {
         this.matrizTablero = matriz;
     }
 
-    public void verTablero() {
+    public String verTablero() {
+        StringBuilder tableroString = new StringBuilder();
+
         // Imprime el tablero con números de filas
         for (int fila = 0; fila < filas; fila++) {
-            System.out.print("F " + fila + "| "); // Imprime el número de fila
+            tableroString.append("F ").append(fila).append("| "); // Imprime el número de fila
             for (int col = 0; col < columnas; col++) {
-                System.out.print(matrizTablero[fila][col] + " ");
+                tableroString.append(matrizTablero[fila][col]).append(" ");
             }
-            System.out.println();
+            tableroString.append("\n");
         }
-        System.out.print("  C  ");
+        tableroString.append("  C  ");
         for (int col = 0; col < columnas; col++) {
-            System.out.print(col + "|");// Imprime los números de columnas
+            tableroString.append(col).append("|");// Imprime los números de columnas
         }
-        System.out.println("");
+        tableroString.append("\n");
+
+        return tableroString.toString();
     }
 
 }

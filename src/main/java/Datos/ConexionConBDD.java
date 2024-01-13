@@ -441,6 +441,38 @@ public class ConexionConBDD implements Serializable {
         return mapaUsuarios;
     }
 
+    public boolean hayBarcoEnCoordenadas(int coordenadaX, int coordenadaY) {
+        boolean hayBarco = false;
+
+        try (Connection conexion = getConexion()) {
+            String sql = "SELECT COUNT(*) AS cantidad_barcos "
+                    + "FROM Barcos "
+                    + "WHERE "
+                    + "    (orientacion = 'H' AND posicion_x <= ? AND ? <= posicion_x + tamano - 1 AND posicion_y = ?) OR "
+                    + "    (orientacion = 'V' AND posicion_y <= ? AND ? <= posicion_y + tamano - 1 AND posicion_x = ?)";
+
+            try (PreparedStatement statement = conexion.prepareStatement(sql)) {
+                statement.setInt(1, coordenadaX);
+                statement.setInt(2, coordenadaX);
+                statement.setInt(3, coordenadaY);
+                statement.setInt(4, coordenadaY);
+                statement.setInt(5, coordenadaX);
+                statement.setInt(6, coordenadaY);
+
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    if (resultSet.next()) {
+                        int cantidadBarcos = resultSet.getInt("cantidad_barcos");
+                        hayBarco = cantidadBarcos > 0;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error en ConexionConBDD: al verificar si hay un barco en coordenadas: " + e.getMessage());
+        }
+
+        return hayBarco;
+    }
+
     public String obtenerNombreJugadorPorID(int idJugador) {
         String nombreJugador = null;
 

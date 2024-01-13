@@ -42,6 +42,10 @@ public class DatosJugador implements Serializable {
         miBDD.registrarDisparo(idPartida, idJugador, posicionX, posicionY);
     }
 
+    public boolean hayBarco(int idPartida, int idJugador, int posicionX, int posicionY) {
+        return miBDD.hayBarcoEnemigoEnCoordenada(idPartida, idJugador, posicionX, posicionY);
+    }
+
     public boolean rendirse(int idJugador, int id_partida) {
         return miBDD.rendirseEnPartida(idJugador, id_partida);
     }

@@ -4,7 +4,7 @@
  */
 package Logica;
 
-import java.util.Scanner;
+import java.util.Random;
 
 /**
  *
@@ -21,29 +21,30 @@ public class Jugador {
     }
 
     public boolean pedirBarco() {
-        System.out.println("\n-Coloca el barco-");
-        Scanner scanner = new Scanner(System.in);
-        try {
-            System.out.println("Introduce la fila del barco:");
-            int fila = scanner.nextInt();
+    System.out.println("\n-Coloca el barco-");
+    try {
+        Random random = new Random();
 
-            System.out.println("Introduce la columna del barco:");
-            int columna = scanner.nextInt();
+        // Generar coordenadas aleatorias para el barco
+        int fila = random.nextInt(10);
+        int columna = random.nextInt(10);
 
-            System.out.println("Introduce el tamaño del barco:");
-            int tamaño = scanner.nextInt();
-            System.out.println("Introduce la orientación del barco (V/H):");
-            String orientacionInput = scanner.next();
-            boolean orientacion = orientacionInput.equalsIgnoreCase("H");
+        // Generar orientación aleatoria (H: Horizontal, V: Vertical)
+        boolean orientacion = random.nextBoolean();
 
-            // Crear el objeto Barco con los datos proporcionados
-            Barco miBarco = new Barco(fila, columna, tamaño, orientacion);
-            return colocarBarco(miBarco);
-        } catch (Exception e) {
-            System.out.println("Datos erroneos.");
-        }
-        return false;
+        // Tamaño fijo del barco
+        int tamaño = 3;
+
+        // Crear el objeto Barco con las coordenadas y orientación aleatorias
+        Barco miBarco = new Barco(fila, columna, tamaño, orientacion);
+
+        // Intentar colocar el barco en el tablero
+        return colocarBarco(miBarco);
+    } catch (Exception e) {
+        System.out.println("Error al colocar el barco.");
     }
+    return false;
+}
 
     public void disparar(int fila, int columna, Tablero tuTablero) {
         // Verifica si las coordenadas están dentro de los límites del tablero
@@ -82,8 +83,8 @@ public class Jugador {
         return miTablero;
     }
 
-    public void verTablero() {
-        miTablero.verTablero();
+    public String verTablero() {
+        return miTablero.verTablero();
     }
 
     private boolean colocarBarco(Barco barco) {

@@ -71,6 +71,8 @@ public class ConexionServidor extends Thread {
                         enviarListaSinTerminadaMiTurno();
                     case 7 ->
                         crearPartida();
+                    case 8 ->
+                        enviarTableroConBarcos();
                     default ->
                         throw new AssertionError();
                 }
@@ -151,6 +153,8 @@ public class ConexionServidor extends Thread {
             int coordenada_x = flujo_entrada.readInt();
             int coordenada_y = flujo_entrada.readInt();
             misDatos.disparar(id_partida, id_jugador, coordenada_x, coordenada_y);
+           boolean resultado = misDatos.hayBarco(id_partida, id_jugador, coordenada_x, coordenada_y);
+            enviarBoolean(resultado);
         } catch (IOException ex) {
             System.out.println("--> Error al recibir Coordenadas: " + ex.getMessage());
         }
@@ -178,6 +182,10 @@ public class ConexionServidor extends Thread {
             Logger.getLogger(ConexionServidor.class.getName()).log(Level.SEVERE, null, ex);
             System.out.println("--> Error al crear Partida: " + ex.getMessage());
         }
+    }
+
+    private void enviarTableroConBarcos() {
+        
     }
 
     // Método para enviar un Booleano por socket
