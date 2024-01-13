@@ -19,7 +19,6 @@ import java.util.logging.Logger;
  */
 public class ConexionServidor extends Thread {
 
-    static final int Puerto = 2001; //Creamos una constante etatica del puerto por donde se conctara el Cliente.
     private final Socket skCliente; //Instanciamos el Socket del Cliente.
     private DataInputStream flujo_entrada;
     private DataOutputStream flujo_salida;
@@ -35,7 +34,7 @@ public class ConexionServidor extends Thread {
      * @param skCliente es un Objeto Socket que se proporciona al constructor.
      * Cada instancia del servidor tendra su propio socket.
      */
-    public ConexionServidor(Socket skCliente,HashMap<Integer, String> usuariosC) {
+    public ConexionServidor(Socket skCliente, HashMap<Integer, String> usuariosC) {
         this.skCliente = skCliente;
         this.usuariosConectados = usuariosC;
 
@@ -54,6 +53,10 @@ public class ConexionServidor extends Thread {
             while (true) {
                 int op = flujo_entrada.readInt();
                 switch (op) {
+                    case 0 -> {
+                        int id = flujo_entrada.readInt();
+                        eliminarUsuario(id);
+                    }
                     case 1 ->
                         enviarRepeticion();
                     case 2 ->
@@ -63,6 +66,10 @@ public class ConexionServidor extends Thread {
                     case 4 ->
                         enviarListaTerminada();
                     case 5 ->
+                        enviarListaSinTerminadaSuTurno();
+                    case 6 ->
+                        enviarListaSinTerminadaMiTurno();
+                    case 7 ->
                         crearPartida();
                     default ->
                         throw new AssertionError();
@@ -87,29 +94,28 @@ public class ConexionServidor extends Thread {
             listaUsuarios = misDatos.tablaUsuarios();
             // Validamos la contraseña y mostramos un mensaje por consola
             contraseñaCorrecta = misDatos.validarContraseña();
-            System.out.println("Usuario: " + usuario + " Contraseña: " + contraseña + " - " + (contraseñaCorrecta ? "Correcta" : "Incorrecta"));
-            
-            if (contraseñaCorrecta) {
-                System.out.println("--> Correcto!");
-                // Mandamos el Objeto de los datos del Cliente
-                enviarObjeto(listaUsuarios);
-                agregarUsuario(misDatos.obtenerIdJugador(), usuario);
-                System.out.println(misDatos.obtenerIdJugador() + " " + usuario);
-                enviarObjeto(misDatos);
-            }
+            System.out.println("-- Usuario: " + usuario + " Contraseña: " + contraseña + " - " + (contraseñaCorrecta ? "Correcta" : "Incorrecta"));
 
+            if (contraseñaCorrecta) {
+                //Añadimos el usuario conectado a la lista y verificamos que no este conectado ya
+                contraseñaCorrecta = agregarUsuario(misDatos.obtenerIdJugador(), usuario);
+                System.out.println("-- " + misDatos.obtenerIdJugador() + ", " + usuario);
+                if (contraseñaCorrecta) {
+                    //Enviamos confirmacion
+                    enviarBoolean(contraseñaCorrecta);
+                    System.out.println("--> Correcto!");
+                    // Mandamos la lista de los usuarios
+                    enviarObjeto(listaUsuarios);
+
+                    //Mandamos el Objeto con los datos necesarios al Jugador
+                    enviarObjeto(misDatos);
+                }
+            }
         } catch (IOException ex) {
             Logger.getLogger(ConexionServidor.class.getName()).log(Level.SEVERE, null, ex);
             System.out.println("--> Error en Login: " + ex.getMessage());
         }
         return contraseñaCorrecta;
-    }
-
-    public void mostrarListaUsuarios() {
-        for (Map.Entry<Integer, String> entry : listaUsuarios.entrySet()) {
-            System.out.println(entry.getValue());
-        }
-        enviarObjeto(listaUsuarios);
     }
 
     public void enviarRepeticion() {
@@ -136,16 +142,6 @@ public class ConexionServidor extends Thread {
 
     }
 
-    // Método para enviar un objeto por socket
-    public void enviarObjeto(Object objeto) {
-        try {
-            objeto_salida.writeObject(objeto);
-            objeto_salida.flush();
-        } catch (IOException e) {
-            System.err.println("Error al enviar el objeto por el socket: " + e.getMessage());
-        }
-    }
-
     private void recibirCoordenadas() {
         try {
             int id_jugador = flujo_entrada.readInt();
@@ -158,20 +154,71 @@ public class ConexionServidor extends Thread {
         }
     }
 
+    private void enviarListaTerminada() {
+        enviarObjeto(misDatos.getListaPartidaTermindas());
+    }
+
+    private void enviarListaSinTerminadaSuTurno() {
+        enviarObjeto(misDatos.getListaPartidasSuTurno());
+    }
+
+    private void enviarListaSinTerminadaMiTurno() {
+        enviarObjeto(misDatos.getListaPartidasMiTurno());
+    }
+
     private void crearPartida() {
         try {
             int id_jugador1 = flujo_entrada.readInt();
             int id_jugador2 = flujo_entrada.readInt();
             flujo_salida.writeInt(misDatos.crearPartida(id_jugador1, id_jugador2));
-            System.out.println("Partida creada");
+            System.out.println("--> Partida creada");
         } catch (IOException ex) {
             Logger.getLogger(ConexionServidor.class.getName()).log(Level.SEVERE, null, ex);
             System.out.println("--> Error al crear Partida: " + ex.getMessage());
         }
     }
 
-    private void enviarListaTerminada() {
-        enviarObjeto(misDatos.getListaPartidaTermindas());
+    // Método para enviar un Booleano por socket
+    private void enviarBoolean(boolean valor) {
+        try {
+            flujo_salida.writeBoolean(valor);
+            flujo_salida.flush();
+        } catch (IOException ex) {
+            System.out.println("--> Error al enviar booleano: " + ex.getMessage());
+        }
+    }
+
+    // Método para enviar un objeto por socket
+    public void enviarObjeto(Object objeto) {
+        try {
+            objeto_salida.writeObject(objeto);
+            objeto_salida.flush();
+        } catch (IOException e) {
+            System.err.println("--> Error al enviar el objeto por el socket: " + e.getMessage());
+        }
+    }
+
+    public boolean agregarUsuario(int id, String nombre) {
+        if (!usuariosConectados.containsKey(id)) {
+            usuariosConectados.put(id, nombre);
+            return true;
+        } else {
+            System.out.println("--> Error: Usuario ya conectado.");
+            return false;
+        }
+    }
+
+    public void eliminarUsuario(int id) {
+        if (usuariosConectados.containsKey(id)) {
+            usuariosConectados.remove(id);
+            System.out.println("- Uno menos: " + id);
+        } else {
+            System.out.println("--> Error: Usuario no encontrado.");
+        }
+    }
+
+    public String getNombreUsuario(int id) {
+        return usuariosConectados.get(id);
     }
 
     private void cerrarConexiones() {
@@ -194,25 +241,4 @@ public class ConexionServidor extends Thread {
         }
     }
 
-    public boolean agregarUsuario(int id, String nombre) {
-        if (!usuariosConectados.containsKey(id)) {
-            usuariosConectados.put(id, nombre);
-            return true;
-        } else {
-            System.out.println("--> Error: Usuario ya conectado.");
-             return false;
-        }
-    }
-
-    public void eliminarUsuario(int id) {
-        if (usuariosConectados.containsKey(id)) {
-            usuariosConectados.remove(id);
-        } else {
-            System.out.println("--> Error: Usuario no encontrado.");
-        }
-    }
-
-    public String getNombreUsuario(int id) {
-        return usuariosConectados.get(id);
-    }
 }

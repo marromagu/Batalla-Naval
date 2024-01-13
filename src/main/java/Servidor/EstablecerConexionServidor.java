@@ -5,13 +5,9 @@
  */
 package Servidor;
 
-import Datos.DatosJugador;
 import java.io.*;
 import java.net.*;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -21,11 +17,6 @@ public class EstablecerConexionServidor extends Thread {
 
     static final int Puerto = 2001; //Creamos una constante etatica del puerto por donde se conctara el Cliente.
     private final Socket skCliente; //Instanciamos el Socket del Cliente.
-    private DataInputStream flujo_entrada;
-    private DataOutputStream flujo_salida;
-    private ObjectOutputStream objeto_salida;
-    private DatosJugador misDatos = null;
-    private HashMap<Integer, String> listaUsuarios;
     private HashMap<Integer, String> usuariosConectados;
 
     ;
@@ -49,8 +40,8 @@ public class EstablecerConexionServidor extends Thread {
             while (true) {
                 Socket skCliente = skServidor.accept(); // Se conecta un Cliente.
                 System.out.println("+ Cliente conectado.");
-                
-                new ConexionServidor(skCliente,usuariosConectados).start(); // Atendemos al Cliente con un Thread
+
+                new ConexionServidor(skCliente, usuariosConectados).start(); // Atendemos al Cliente con un Thread
             }
         } catch (IOException e) {
             System.out.println("-> Ups, ha ocurrido algo inesperado: " + e.getMessage());
