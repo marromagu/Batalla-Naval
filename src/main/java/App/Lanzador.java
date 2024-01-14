@@ -19,7 +19,7 @@ public class Lanzador {
     public static void main(String[] args) {
         Socket sk = new Socket();
         EstablecerConexionServidor server = new EstablecerConexionServidor(sk);
-        server.EstablecerConexcion();
+        server.establecerConexcion();
     }
 
 }

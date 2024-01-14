@@ -9,7 +9,6 @@ import Datos.DatosJugador;
 import java.io.*;
 import java.net.*;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,7 +24,7 @@ public class ConexionServidor extends Thread {
     private ObjectOutputStream objeto_salida;
     private DatosJugador misDatos = null;
     private HashMap<Integer, String> listaUsuarios;
-    private HashMap<Integer, String> usuariosConectados;
+    private final HashMap<Integer, ConexionServidor> usuariosConectados;
 
     ;
 
@@ -33,8 +32,9 @@ public class ConexionServidor extends Thread {
      *
      * @param skCliente es un Objeto Socket que se proporciona al constructor.
      * Cada instancia del servidor tendra su propio socket.
+     * @param usuariosC
      */
-    public ConexionServidor(Socket skCliente, HashMap<Integer, String> usuariosC) {
+    public ConexionServidor(Socket skCliente, HashMap<Integer, ConexionServidor> usuariosC) {
         this.skCliente = skCliente;
         this.usuariosConectados = usuariosC;
 
@@ -73,6 +73,8 @@ public class ConexionServidor extends Thread {
                         crearPartida();
                     case 8 ->
                         enviarTableroConBarcos();
+                    case 9 ->
+                        recivir_enviar();
                     default ->
                         throw new AssertionError();
                 }
@@ -153,7 +155,7 @@ public class ConexionServidor extends Thread {
             int coordenada_x = flujo_entrada.readInt();
             int coordenada_y = flujo_entrada.readInt();
             misDatos.disparar(id_partida, id_jugador, coordenada_x, coordenada_y);
-           boolean resultado = misDatos.hayBarco(id_partida, id_jugador, coordenada_x, coordenada_y);
+            boolean resultado = misDatos.hayBarco(id_partida, id_jugador, coordenada_x, coordenada_y);
             enviarBoolean(resultado);
         } catch (IOException ex) {
             System.out.println("--> Error al recibir Coordenadas: " + ex.getMessage());
@@ -185,7 +187,7 @@ public class ConexionServidor extends Thread {
     }
 
     private void enviarTableroConBarcos() {
-        
+
     }
 
     // Método para enviar un Booleano por socket
@@ -211,7 +213,7 @@ public class ConexionServidor extends Thread {
 
     public boolean agregarUsuario(int id, String nombre) {
         if (!usuariosConectados.containsKey(id)) {
-            usuariosConectados.put(id, nombre);
+            usuariosConectados.put(id, this);
             return true;
         } else {
             System.out.println("--> Error: Usuario ya conectado.");
@@ -228,7 +230,7 @@ public class ConexionServidor extends Thread {
         }
     }
 
-    public String getNombreUsuario(int id) {
+    public ConexionServidor getNombreUsuario(int id) {
         return usuariosConectados.get(id);
     }
 
@@ -249,6 +251,20 @@ public class ConexionServidor extends Thread {
             }
         } catch (IOException e) {
             System.out.println("--> Error al cerrar conexiones: " + e.getMessage());
+        }
+    }
+
+    private void recivir_enviar() {
+        try {
+            String mensaje;
+            mensaje = flujo_entrada.readUTF();
+            int id1 = flujo_entrada.readInt();
+            int id2 = flujo_entrada.readInt();
+            System.out.println("---" + mensaje + " " + id1 + " " + id2 + "---");
+            usuariosConectados.get(id2).flujo_salida.writeUTF(mensaje);
+
+        } catch (IOException ex) {
+            Logger.getLogger(ConexionServidor.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

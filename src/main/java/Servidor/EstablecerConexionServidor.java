@@ -15,9 +15,9 @@ import java.util.HashMap;
  */
 public class EstablecerConexionServidor extends Thread {
 
-    static final int Puerto = 2001; //Creamos una constante etatica del puerto por donde se conctara el Cliente.
+    static final int PUERTO = 2001; //Creamos una constante etatica del puerto por donde se conctara el Cliente.
     private final Socket skCliente; //Instanciamos el Socket del Cliente.
-    private HashMap<Integer, String> usuariosConectados;
+    private HashMap<Integer, ConexionServidor> usuariosConectados;
 
     ;
 
@@ -31,10 +31,10 @@ public class EstablecerConexionServidor extends Thread {
 
     }
 
-    public void EstablecerConexcion() {
+    public void establecerConexcion() {
         try {
-            ServerSocket skServidor = new ServerSocket(Puerto); // Inicializamos el servidor en el puerto
-            System.out.println("-> Puerto: " + Puerto + " en escucha.");
+            ServerSocket skServidor = new ServerSocket(PUERTO); // Inicializamos el servidor en el puerto
+            System.out.println("-> Puerto: " + PUERTO + " en escucha.");
             usuariosConectados = new HashMap<>();
             // listaUsuarios = new HashMap<>(); // Mueve la inicialización aquí fuera del bucle
             while (true) {

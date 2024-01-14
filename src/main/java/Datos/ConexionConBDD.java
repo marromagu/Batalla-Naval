@@ -241,11 +241,12 @@ public class ConexionConBDD implements Serializable {
                         int jugadorId = resultSet.getInt("jugador_id");
                         int posicionX = resultSet.getInt("posicion_x");
                         int posicionY = resultSet.getInt("posicion_y");
-                        String resultado = resultSet.getString("resultado");
+                        String mensajeResultado = resultSet.getString("resultado").equals("T") ? "Tocado" : "Agua";
+                        String jugador = obtenerNombreJugadorPorID(jugadorId);
 
                         // Crear cadena representativa del disparo
-                        String representacionDisparo = String.format("ID Disparo: %d, Jugador (ID): %d, Posición: (%d, %d), Resultado: %s",
-                                idDisparo, jugadorId, posicionX, posicionY, resultado);
+                        String representacionDisparo = String.format("-> ID Disparo: %d, Jugador: %s, Coordenadas: %d X %d Y, Resultado: %s",
+                                idDisparo, jugador, posicionX, posicionY, mensajeResultado);
 
                         // Agregar la representación al ArrayList
                         listaDisparos.add(representacionDisparo);
