@@ -32,11 +32,11 @@ public class ConexionServidor extends Thread {
      *
      * @param skCliente es un Objeto Socket que se proporciona al constructor.
      * Cada instancia del servidor tendra su propio socket.
-     * @param usuariosC
+     * @param usuariosConectados
      */
-    public ConexionServidor(Socket skCliente, HashMap<Integer, ConexionServidor> usuariosC) {
+    public ConexionServidor(Socket skCliente, HashMap<Integer, ConexionServidor> usuariosConectados) {
         this.skCliente = skCliente;
-        this.usuariosConectados = usuariosC;
+        this.usuariosConectados = usuariosConectados;
 
     }
 
